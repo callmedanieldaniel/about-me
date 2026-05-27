@@ -21,7 +21,7 @@ const serif = Crimson_Pro({
 });
 
 export const metadata: Metadata = {
-  title: "Shen Yang — Visualization Engineer",
+  title: "ZIV — Visualization Engineer",
   description:
     "Frontend visualization engineer. Map SDKs, 3D scene tooling, real-time data viz at Baidu, Alibaba, NIO, DiDi.",
 };

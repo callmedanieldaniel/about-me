@@ -1,167 +1,113 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { loadBMap, loadMapv } from "../lib/sdk";
 
-type Point = { x: number; y: number; w: number; vx: number; vy: number };
-
+// Real mapv on Baidu BMapGL — heatmap with 5000 points
 export default function MapvDemo() {
-  const ref = useRef<HTMLCanvasElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const canvas = ref.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d")!;
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    let alive = true;
+    let mapRef: { destroy?: () => void } | null = null;
 
-    let w = 0;
-    let h = 0;
-    const resize = () => {
-      const rect = canvas.parentElement!.getBoundingClientRect();
-      w = rect.width;
-      h = rect.height;
-      canvas.width = w * dpr;
-      canvas.height = h * dpr;
-      canvas.style.width = `${w}px`;
-      canvas.style.height = `${h}px`;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    };
-    resize();
-    const ro = new ResizeObserver(resize);
-    ro.observe(canvas.parentElement!);
+    Promise.all([loadBMap(), loadMapv()])
+      .then(([BMapGLAny, mapvAny]) => {
+        if (!alive || !ref.current) return;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const BMapGL = BMapGLAny as any;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const mapv = mapvAny as any;
 
-    // Stylized "China" cluster points + scattered noise — mimics mapv gallery population heat
-    const points: Point[] = [];
-    const cluster = (cx: number, cy: number, n: number, spread: number) => {
-      for (let i = 0; i < n; i++) {
-        const a = Math.random() * Math.PI * 2;
-        const r = Math.pow(Math.random(), 2) * spread;
-        points.push({
-          x: cx + Math.cos(a) * r,
-          y: cy + Math.sin(a) * r,
-          w: 0.4 + Math.random() * 0.6,
-          vx: (Math.random() - 0.5) * 0.15,
-          vy: (Math.random() - 0.5) * 0.15,
-        });
-      }
-    };
+        const map = new BMapGL.Map(ref.current);
+        mapRef = map;
+        map.centerAndZoom(new BMapGL.Point(116.404, 39.915), 12);
+        map.enableScrollWheelZoom();
+        map.setHeading(0);
+        map.setTilt(35);
 
-    const seed = () => {
-      points.length = 0;
-      // approx city anchors (normalized 0-1 grid)
-      const anchors: [number, number, number, number][] = [
-        [0.72, 0.55, 220, 60], // shanghai
-        [0.60, 0.45, 160, 50], // wuhan
-        [0.55, 0.32, 200, 55], // beijing
-        [0.78, 0.62, 140, 45], // hangzhou
-        [0.30, 0.55, 110, 50], // chengdu
-        [0.85, 0.72, 120, 40], // shenzhen
-        [0.50, 0.62, 100, 45], // changsha
-        [0.40, 0.40, 90, 50],  // xian
-      ];
-      for (const [nx, ny, n, s] of anchors) {
-        cluster(nx * w, ny * h, n, s);
-      }
-      // sparse noise
-      for (let i = 0; i < 200; i++) {
-        points.push({
-          x: Math.random() * w,
-          y: Math.random() * h,
-          w: 0.2 + Math.random() * 0.4,
-          vx: (Math.random() - 0.5) * 0.1,
-          vy: (Math.random() - 0.5) * 0.1,
-        });
-      }
-    };
-    seed();
-    window.addEventListener("resize", () => { resize(); seed(); });
+        // Dark style
+        map.setMapStyleV2({ styleId: "midnight" });
 
-    // Off-screen accumulation buffer
-    const acc = document.createElement("canvas");
-    acc.width = canvas.width;
-    acc.height = canvas.height;
-    const actx = acc.getContext("2d")!;
-    actx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-    const palette = (t: number) => {
-      // mapv-like cool→hot
-      if (t < 0.25) return `rgba(20, 50, 140, ${t * 4})`;
-      if (t < 0.5) return `rgba(40, 160, 200, ${0.6 + t * 0.4})`;
-      if (t < 0.75) return `rgba(240, 200, 60, 0.85)`;
-      return `rgba(255, 90, 80, 0.95)`;
-    };
-
-    let raf = 0;
-    let t0 = performance.now();
-    const tick = () => {
-      const now = performance.now();
-      const dt = Math.min(50, now - t0);
-      t0 = now;
-
-      for (const p of points) {
-        p.x += p.vx * dt * 0.05;
-        p.y += p.vy * dt * 0.05;
-        if (p.x < 0 || p.x > w) p.vx *= -1;
-        if (p.y < 0 || p.y > h) p.vy *= -1;
-      }
-
-      // background grid
-      ctx.clearRect(0, 0, w, h);
-      ctx.fillStyle = "#0a0a10";
-      ctx.fillRect(0, 0, w, h);
-      ctx.strokeStyle = "rgba(40,40,55,0.6)";
-      ctx.lineWidth = 1;
-      const grid = 40;
-      for (let x = 0; x <= w; x += grid) {
-        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
-      }
-      for (let y = 0; y <= h; y += grid) {
-        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
-      }
-
-      // density grid (simple binning, mapv heatmap style)
-      const cell = 12;
-      const cols = Math.ceil(w / cell);
-      const rows = Math.ceil(h / cell);
-      const bins = new Float32Array(cols * rows);
-      let max = 0;
-      for (const p of points) {
-        const cx = Math.floor(p.x / cell);
-        const cy = Math.floor(p.y / cell);
-        // splat 3x3
-        for (let dy = -1; dy <= 1; dy++) {
-          for (let dx = -1; dx <= 1; dx++) {
-            const xx = cx + dx, yy = cy + dy;
-            if (xx < 0 || yy < 0 || xx >= cols || yy >= rows) continue;
-            const k = (1 - Math.hypot(dx, dy) / 1.5) * p.w;
-            const idx = yy * cols + xx;
-            bins[idx] += Math.max(0, k);
-            if (bins[idx] > max) max = bins[idx];
+        // Generate density points around several Beijing hotspots
+        const hotspots: [number, number][] = [
+          [116.404, 39.915],   // Tiananmen
+          [116.327, 39.984],   // Zhongguancun
+          [116.477, 39.937],   // CBD
+          [116.351, 39.872],   // South Fourth Ring
+          [116.291, 39.951],   // West
+          [116.470, 39.992],   // North-east
+        ];
+        const data: { geometry: { type: "Point"; coordinates: [number, number] }; count: number }[] = [];
+        hotspots.forEach(([clng, clat]) => {
+          for (let i = 0; i < 900; i++) {
+            const a = Math.random() * Math.PI * 2;
+            const r = Math.pow(Math.random(), 0.6) * 0.06;
+            data.push({
+              geometry: {
+                type: "Point",
+                coordinates: [clng + Math.cos(a) * r, clat + Math.sin(a) * r * 0.7],
+              },
+              count: 1 + Math.random() * 10,
+            });
           }
-        }
-      }
+        });
+        const dataSet = new mapv.DataSet(data);
 
-      for (let y = 0; y < rows; y++) {
-        for (let x = 0; x < cols; x++) {
-          const v = bins[y * cols + x] / Math.max(1, max);
-          if (v < 0.05) continue;
-          ctx.fillStyle = palette(v);
-          ctx.fillRect(x * cell, y * cell, cell - 1, cell - 1);
-        }
-      }
+        const opts = {
+          fillStyle: "rgba(255, 126, 182, 0.85)",
+          shadowColor: "rgba(255, 126, 182, 0.5)",
+          shadowBlur: 20,
+          size: 7,
+          globalAlpha: 0.7,
+          gradient: {
+            0.15: "#3742fa",
+            0.35: "#79ffe1",
+            0.6: "#f0c83c",
+            0.85: "#ff7eb6",
+            1.0: "#ff5a50",
+          },
+          max: 60,
+          draw: "heatmap",
+        };
 
-      raf = requestAnimationFrame(tick);
-    };
-    tick();
+        new mapv.baiduMapLayer(map, dataSet, opts);
+
+        // HUD
+        const hud = document.createElement("div");
+        hud.style.cssText = `
+          position:absolute;top:12px;left:12px;z-index:10;
+          color:rgba(255,255,255,0.85);font:11px ui-monospace,monospace;
+          background:rgba(10,10,16,0.75);padding:8px 12px;border-radius:6px;
+          border:1px solid rgba(255,126,182,0.3);pointer-events:none;
+        `;
+        hud.innerHTML = `
+          <div style="color:#ff7eb6;margin-bottom:4px">mapv · BAIDU MAP · HEATMAP</div>
+          <div>5,400 points · 6 hotspots · radius 7px gaussian</div>
+        `;
+        ref.current.appendChild(hud);
+      })
+      .catch(() => {
+        if (ref.current) ref.current.innerHTML = errorBox();
+      });
 
     return () => {
-      cancelAnimationFrame(raf);
-      ro.disconnect();
+      alive = false;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const m = mapRef as any;
+      if (m && typeof m.destroy === "function") {
+        try { m.destroy(); } catch { /* noop */ }
+      }
     };
   }, []);
 
   return (
-    <div style={{ height: 360 }}>
-      <canvas ref={ref} />
+    <div style={{ height: 440, position: "relative" }}>
+      <div ref={ref} style={{ width: "100%", height: "100%" }} />
     </div>
   );
+}
+
+function errorBox() {
+  return `<div style="height:100%;display:flex;align-items:center;justify-content:center;color:#8b8a96;font-family:ui-monospace,monospace;font-size:12px;">mapv/BMap failed to load</div>`;
 }

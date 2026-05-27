@@ -1,163 +1,163 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import * as THREE from "three";
+import { loadLoca } from "../lib/sdk";
 
-// AMap Loca-style 3D extruded city — stylized blocks + light sweep
+// AMap Loca v2 — pulse-line + scatter scan over a dark city
 export default function LocaDemo() {
-  const ref = useRef<HTMLCanvasElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const canvas = ref.current;
-    if (!canvas) return;
+    let alive = true;
+    let map: { destroy?: () => void } | null = null;
 
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setClearColor(0x0a0a10, 1);
+    loadLoca()
+      .then(() => {
+        if (!alive || !ref.current) return;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const AMap = (window as any).AMap;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const Loca = (window as any).Loca;
 
-    const scene = new THREE.Scene();
-    scene.fog = new THREE.Fog(0x0a0a10, 30, 80);
-
-    const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 200);
-    camera.position.set(28, 22, 28);
-    camera.lookAt(0, 0, 0);
-
-    const resize = () => {
-      const rect = canvas.parentElement!.getBoundingClientRect();
-      renderer.setSize(rect.width, rect.height, false);
-      camera.aspect = rect.width / rect.height;
-      camera.updateProjectionMatrix();
-    };
-    resize();
-    const ro = new ResizeObserver(resize);
-    ro.observe(canvas.parentElement!);
-
-    // ground grid
-    const grid = new THREE.GridHelper(80, 40, 0x222230, 0x14141c);
-    scene.add(grid);
-
-    // road network (cross + diagonals)
-    const roadMat = new THREE.LineBasicMaterial({ color: 0x2a2a40 });
-    const roadGeo = new THREE.BufferGeometry().setFromPoints([
-      new THREE.Vector3(-40, 0.01, 0), new THREE.Vector3(40, 0.01, 0),
-      new THREE.Vector3(0, 0.01, -40), new THREE.Vector3(0, 0.01, 40),
-    ]);
-    scene.add(new THREE.LineSegments(roadGeo, roadMat));
-
-    // city blocks — colored by height, mimics Loca extrude layer
-    const blocks: THREE.Mesh[] = [];
-    const grid_n = 14;
-    const cell = 3.0;
-    const heightMap: number[][] = [];
-    for (let i = 0; i < grid_n; i++) {
-      heightMap[i] = [];
-      for (let j = 0; j < grid_n; j++) {
-        const cx = i - grid_n / 2 + 0.5;
-        const cz = j - grid_n / 2 + 0.5;
-        const distToCenter = Math.hypot(cx, cz);
-        // skyscraper cluster in middle, drops off
-        const base = Math.max(0, 1 - distToCenter / (grid_n / 2));
-        const noise = Math.random();
-        const skip = Math.abs(cx) < 0.6 || Math.abs(cz) < 0.6; // road gap
-        heightMap[i][j] = skip ? 0 : 0.5 + base * 8 + noise * 4;
-      }
-    }
-
-    const baseGeo = new THREE.BoxGeometry(cell * 0.78, 1, cell * 0.78);
-    for (let i = 0; i < grid_n; i++) {
-      for (let j = 0; j < grid_n; j++) {
-        const h = heightMap[i][j];
-        if (h <= 0.5) continue;
-        // color ramp by height (low: teal, mid: pink, tall: cream)
-        const t = Math.min(1, h / 10);
-        const color = new THREE.Color().setHSL(
-          0.5 - t * 0.45,
-          0.6,
-          0.4 + t * 0.25
-        );
-        const mat = new THREE.MeshStandardMaterial({
-          color,
-          emissive: color.clone().multiplyScalar(0.25),
-          metalness: 0.1,
-          roughness: 0.55,
-          transparent: true,
-          opacity: 0.92,
+        map = new AMap.Map(ref.current, {
+          mapStyle: "amap://styles/grey",
+          viewMode: "3D",
+          pitch: 60,
+          rotation: 30,
+          zoom: 15.5,
+          center: [121.4974, 31.2335],
+          showBuildingBlock: false,
+          features: ["bg", "road"],
         });
-        const m = new THREE.Mesh(baseGeo, mat);
-        const x = (i - grid_n / 2 + 0.5) * cell;
-        const z = (j - grid_n / 2 + 0.5) * cell;
-        m.position.set(x, h / 2, z);
-        m.scale.y = h;
-        scene.add(m);
-        blocks.push(m);
 
-        // top edge highlight
-        const edges = new THREE.EdgesGeometry(baseGeo);
-        const line = new THREE.LineSegments(
-          edges,
-          new THREE.LineBasicMaterial({
-            color: 0xff7eb6,
-            transparent: true,
-            opacity: 0.35,
-          })
-        );
-        line.position.copy(m.position);
-        line.scale.copy(m.scale);
-        scene.add(line);
-      }
-    }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const _map = map as any;
+        const loca = new Loca.Container({ map: _map });
 
-    // lights
-    scene.add(new THREE.AmbientLight(0xffffff, 0.35));
-    const key = new THREE.DirectionalLight(0xffeec0, 0.8);
-    key.position.set(30, 50, 20);
-    scene.add(key);
-    const rim = new THREE.PointLight(0x79ffe1, 1.2, 60);
-    rim.position.set(-15, 15, -15);
-    scene.add(rim);
+        // Building layer (the signature Loca look)
+        const buildingLayer = new Loca.HeatmapLayer({
+          zIndex: 10,
+        });
 
-    // sweeping light bar across ground
-    const sweepGeo = new THREE.PlaneGeometry(80, 2);
-    const sweepMat = new THREE.MeshBasicMaterial({
-      color: 0xff7eb6,
-      transparent: true,
-      opacity: 0.18,
-      side: THREE.DoubleSide,
-    });
-    const sweep = new THREE.Mesh(sweepGeo, sweepMat);
-    sweep.rotation.x = -Math.PI / 2;
-    sweep.position.y = 0.02;
-    scene.add(sweep);
+        // Use Loca.PolygonLayer with extruded buildings via AMap.Buildings
+        const buildings = new AMap.Buildings({
+          zooms: [14, 22],
+          zIndex: 10,
+          heightFactor: 2,
+        });
+        const buildingStyle = {
+          hideWithoutStyle: false,
+          areas: [
+            {
+              rejectTexture: true,
+              color1: "#ff7eb6",
+              color2: "#79ffe1",
+              path: [
+                [121.46, 31.22],
+                [121.54, 31.22],
+                [121.54, 31.26],
+                [121.46, 31.26],
+              ],
+            },
+          ],
+        };
+        buildings.setStyle(buildingStyle);
+        _map.add(buildings);
 
-    let raf = 0;
-    let t = 0;
-    const tick = () => {
-      t += 0.005;
-      // orbit
-      const r = 32;
-      camera.position.x = Math.cos(t) * r;
-      camera.position.z = Math.sin(t) * r;
-      camera.position.y = 18 + Math.sin(t * 0.7) * 4;
-      camera.lookAt(0, 4, 0);
+        // Pulse line — animated stroked line layer
+        const lineGeo = {
+          type: "FeatureCollection",
+          features: [
+            {
+              type: "Feature",
+              properties: {},
+              geometry: {
+                type: "LineString",
+                coordinates: [
+                  [121.470, 31.225],
+                  [121.482, 31.230],
+                  [121.490, 31.238],
+                  [121.500, 31.234],
+                  [121.510, 31.240],
+                  [121.520, 31.235],
+                ],
+              },
+            },
+          ],
+        };
+        const lineSource = new Loca.GeoJSONSource({ data: lineGeo });
+        const pulseLine = new Loca.PulseLineLayer({
+          loca,
+          zIndex: 20,
+          opacity: 1,
+          visible: true,
+        });
+        pulseLine.setSource(lineSource);
+        pulseLine.setStyle({
+          altitude: 4,
+          lineWidth: 4,
+          headColor: "#ff7eb6",
+          trailColor: "rgba(121,255,225,0.2)",
+          interval: 0.4,
+          duration: 2500,
+        });
+        loca.add(pulseLine);
 
-      sweep.position.z = ((t * 30) % 80) - 40;
+        // Scatter pulse points
+        const scatterGeo = {
+          type: "FeatureCollection",
+          features: [
+            [121.475, 31.228],
+            [121.488, 31.236],
+            [121.500, 31.232],
+            [121.512, 31.241],
+            [121.495, 31.250],
+            [121.480, 31.245],
+          ].map((c) => ({
+            type: "Feature",
+            properties: { v: 1 },
+            geometry: { type: "Point", coordinates: c },
+          })),
+        };
+        const scatterSource = new Loca.GeoJSONSource({ data: scatterGeo });
+        const scatter = new Loca.ScatterLayer({
+          loca,
+          zIndex: 30,
+        });
+        scatter.setSource(scatterSource);
+        scatter.setStyle({
+          unit: "px",
+          size: [40, 40],
+          borderWidth: 0,
+          texture:
+            "https://a.amap.com/Loca/static/loca-v2/demos/images/breath_red.png",
+          duration: 2000,
+          animate: true,
+        });
+        loca.add(scatter);
 
-      renderer.render(scene, camera);
-      raf = requestAnimationFrame(tick);
-    };
-    tick();
+        loca.animate.start();
+
+        // unused — silence TS
+        void buildingLayer;
+      })
+      .catch(() => {
+        if (ref.current) ref.current.innerHTML = errorBox();
+      });
 
     return () => {
-      cancelAnimationFrame(raf);
-      ro.disconnect();
-      baseGeo.dispose();
-      renderer.dispose();
+      alive = false;
+      if (map && typeof map.destroy === "function") map.destroy();
     };
   }, []);
 
   return (
-    <div style={{ height: 380 }}>
-      <canvas ref={ref} style={{ display: "block", width: "100%", height: "100%" }} />
+    <div style={{ height: 460 }}>
+      <div ref={ref} style={{ width: "100%", height: "100%" }} />
     </div>
   );
+}
+
+function errorBox() {
+  return `<div style="height:100%;display:flex;align-items:center;justify-content:center;color:#8b8a96;font-family:ui-monospace,monospace;font-size:12px;">Loca failed to load</div>`;
 }

@@ -1,119 +1,131 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import * as THREE from "three";
+import { loadLoca } from "../lib/sdk";
 
-// L7 / Loca-style extruded hex grid with data-driven height
+// L7-style hex aggregation — use Loca PolygonLayer to render hex tiles
+// over a real AMap base (the visual is what L7 ships).
+type Hex = { coords: [number, number][]; value: number };
+
 export default function L7Demo() {
-  const ref = useRef<HTMLCanvasElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const canvas = ref.current;
-    if (!canvas) return;
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setClearColor(0x0a0a10, 1);
+    let alive = true;
+    let map: { destroy?: () => void } | null = null;
 
-    const scene = new THREE.Scene();
-    scene.fog = new THREE.Fog(0x0a0a10, 35, 90);
+    loadLoca()
+      .then(() => {
+        if (!alive || !ref.current) return;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const AMap = (window as any).AMap;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const Loca = (window as any).Loca;
 
-    const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 200);
-    camera.position.set(0, 30, 40);
-    camera.lookAt(0, 0, 0);
-
-    const resize = () => {
-      const rect = canvas.parentElement!.getBoundingClientRect();
-      renderer.setSize(rect.width, rect.height, false);
-      camera.aspect = rect.width / rect.height;
-      camera.updateProjectionMatrix();
-    };
-    resize();
-    const ro = new ResizeObserver(resize);
-    ro.observe(canvas.parentElement!);
-
-    // Hexagonal cylinder (radius 1, 6 sides)
-    const hexGeo = new THREE.CylinderGeometry(0.85, 0.85, 1, 6);
-
-    const hexes: THREE.Mesh[] = [];
-    const baseHeights: number[] = [];
-
-    const radius = 12;
-    const dx = Math.sqrt(3); // hex width
-    const dz = 1.5;          // row offset
-
-    for (let r = -radius; r <= radius; r++) {
-      for (let q = -radius; q <= radius; q++) {
-        const x = (q + r * 0.5) * dx;
-        const z = r * dz;
-        const dist = Math.hypot(x, z);
-        if (dist > radius * 1.2) continue;
-
-        // data field — two gaussian peaks + ridge
-        const v =
-          Math.exp(-Math.pow((x + 6) * 0.18, 2) - Math.pow((z - 4) * 0.2, 2)) * 8 +
-          Math.exp(-Math.pow((x - 8) * 0.15, 2) - Math.pow((z + 3) * 0.18, 2)) * 6 +
-          Math.exp(-Math.pow(z * 0.25, 2)) * 1.5 +
-          Math.random() * 0.6;
-
-        const t = Math.min(1, v / 8);
-        const color = new THREE.Color().setHSL(0.55 - t * 0.5, 0.7, 0.45 + t * 0.2);
-        const mat = new THREE.MeshStandardMaterial({
-          color,
-          emissive: color.clone().multiplyScalar(0.3),
-          metalness: 0.15,
-          roughness: 0.5,
-          transparent: true,
-          opacity: 0.92,
+        const center: [number, number] = [121.473, 31.230];
+        map = new AMap.Map(ref.current, {
+          mapStyle: "amap://styles/dark",
+          viewMode: "3D",
+          pitch: 55,
+          rotation: 25,
+          zoom: 12.5,
+          center,
+          features: ["bg", "road"],
         });
-        const m = new THREE.Mesh(hexGeo, mat);
-        m.position.set(x, v / 2, z);
-        m.scale.y = Math.max(0.2, v);
-        scene.add(m);
-        hexes.push(m);
-        baseHeights.push(v);
-      }
-    }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const _map = map as any;
 
-    scene.add(new THREE.AmbientLight(0xffffff, 0.4));
-    const key = new THREE.DirectionalLight(0xfff0c8, 0.9);
-    key.position.set(20, 40, 10);
-    scene.add(key);
-    const rim = new THREE.PointLight(0xff7eb6, 1.5, 50);
-    rim.position.set(-12, 8, -8);
-    scene.add(rim);
+        const loca = new Loca.Container({ map: _map });
 
-    let raf = 0;
-    let t = 0;
-    const tick = () => {
-      t += 0.008;
-      camera.position.x = Math.sin(t) * 32;
-      camera.position.z = Math.cos(t) * 32;
-      camera.position.y = 24 + Math.sin(t * 0.5) * 4;
-      camera.lookAt(0, 3, 0);
+        // Build hex grid centered on shanghai people's square
+        const hexSize = 0.005; // degrees ~ 500m
+        const cols = 18;
+        const rows = 14;
 
-      // gentle breathing animation on heights
-      hexes.forEach((m, i) => {
-        const h = baseHeights[i] + Math.sin(t * 2 + i * 0.1) * 0.3;
-        m.scale.y = Math.max(0.2, h);
-        m.position.y = m.scale.y / 2;
+        const hexes: Hex[] = [];
+        const dx = hexSize * Math.sqrt(3);
+        const dy = hexSize * 1.5;
+
+        for (let r = -rows / 2; r < rows / 2; r++) {
+          for (let q = -cols / 2; q < cols / 2; q++) {
+            const cx = center[0] + (q + (r % 2 ? 0.5 : 0)) * dx;
+            const cy = center[1] + r * dy;
+            // gaussian field — two peaks
+            const v =
+              Math.exp(
+                -Math.pow((cx - center[0]) * 100, 2) -
+                  Math.pow((cy - center[1]) * 100, 2)
+              ) *
+                0.7 +
+              Math.exp(
+                -Math.pow((cx - center[0] - 0.03) * 80, 2) -
+                  Math.pow((cy - center[1] - 0.015) * 80, 2)
+              ) *
+                0.5 +
+              Math.random() * 0.05;
+            if (v < 0.05) continue;
+            const coords: [number, number][] = [];
+            for (let i = 0; i < 6; i++) {
+              const a = (Math.PI / 3) * i + Math.PI / 6;
+              coords.push([cx + Math.cos(a) * hexSize, cy + Math.sin(a) * hexSize]);
+            }
+            coords.push(coords[0]);
+            hexes.push({ coords, value: v });
+          }
+        }
+
+        const features = hexes.map((h) => ({
+          type: "Feature",
+          properties: { value: h.value },
+          geometry: { type: "Polygon", coordinates: [h.coords] },
+        }));
+        const source = new Loca.GeoJSONSource({
+          data: { type: "FeatureCollection", features },
+        });
+
+        const layer = new Loca.PolygonLayer({ loca, zIndex: 20 });
+        layer.setSource(source);
+        layer.setStyle({
+          topNormal: true,
+          altitude: 0,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          height: (_i: number, f: any) => f.properties.value * 1500,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          topColor: (_i: number, f: any) => {
+            const v = f.properties.value;
+            if (v > 0.5) return "#ff7eb6";
+            if (v > 0.25) return "#f0c83c";
+            return "#79ffe1";
+          },
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          sideTopColor: (_i: number, f: any) => {
+            const v = f.properties.value;
+            if (v > 0.5) return "#ff7eb6";
+            if (v > 0.25) return "#f0c83c";
+            return "#79ffe1";
+          },
+          sideBottomColor: "#0a0a10",
+        });
+        loca.add(layer);
+        loca.animate.start();
+      })
+      .catch(() => {
+        if (ref.current) ref.current.innerHTML = errorBox();
       });
 
-      renderer.render(scene, camera);
-      raf = requestAnimationFrame(tick);
-    };
-    tick();
-
     return () => {
-      cancelAnimationFrame(raf);
-      ro.disconnect();
-      hexGeo.dispose();
-      renderer.dispose();
+      alive = false;
+      if (map && typeof map.destroy === "function") map.destroy();
     };
   }, []);
 
   return (
-    <div style={{ height: 380 }}>
-      <canvas ref={ref} style={{ display: "block", width: "100%", height: "100%" }} />
+    <div style={{ height: 440 }}>
+      <div ref={ref} style={{ width: "100%", height: "100%" }} />
     </div>
   );
+}
+
+function errorBox() {
+  return `<div style="height:100%;display:flex;align-items:center;justify-content:center;color:#8b8a96;font-family:ui-monospace,monospace;font-size:12px;">L7 failed to load</div>`;
 }

@@ -1,164 +1,133 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { loadBMap, loadMapv } from "../lib/sdk";
 
-// Baidu Qianxi-style migration flow — animated arcs between city nodes
+// Real mapv migration layer on Baidu BMapGL — animated arcs across China
 export default function QianxiDemo() {
-  const ref = useRef<HTMLCanvasElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const canvas = ref.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d")!;
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    let alive = true;
+    let mapRef: { destroy?: () => void } | null = null;
 
-    let w = 0, h = 0;
-    const resize = () => {
-      const rect = canvas.parentElement!.getBoundingClientRect();
-      w = rect.width;
-      h = rect.height;
-      canvas.width = w * dpr;
-      canvas.height = h * dpr;
-      canvas.style.width = `${w}px`;
-      canvas.style.height = `${h}px`;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    };
-    resize();
-    const ro = new ResizeObserver(resize);
-    ro.observe(canvas.parentElement!);
+    Promise.all([loadBMap(), loadMapv()])
+      .then(([BMapGLAny, mapvAny]) => {
+        if (!alive || !ref.current) return;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const BMapGL = BMapGLAny as any;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const mapv = mapvAny as any;
 
-    const cities: { name: string; x: number; y: number; size: number }[] = [
-      { name: "Beijing",   x: 0.55, y: 0.25, size: 7 },
-      { name: "Shanghai",  x: 0.78, y: 0.50, size: 8 },
-      { name: "Guangzhou", x: 0.62, y: 0.78, size: 6 },
-      { name: "Shenzhen",  x: 0.66, y: 0.82, size: 6 },
-      { name: "Chengdu",   x: 0.30, y: 0.55, size: 6 },
-      { name: "Wuhan",     x: 0.55, y: 0.55, size: 5 },
-      { name: "Xi'an",     x: 0.40, y: 0.42, size: 5 },
-      { name: "Hangzhou",  x: 0.74, y: 0.55, size: 5 },
-      { name: "Chongqing", x: 0.36, y: 0.58, size: 5 },
-    ];
+        const map = new BMapGL.Map(ref.current);
+        mapRef = map;
+        map.centerAndZoom(new BMapGL.Point(108, 33.5), 4.6);
+        map.enableScrollWheelZoom();
+        map.setMapStyleV2({ styleId: "midnight" });
 
-    type Flow = { a: number; b: number; phase: number; speed: number; weight: number };
-    const flows: Flow[] = [];
-    const seedFlows = () => {
-      flows.length = 0;
-      for (let i = 0; i < 24; i++) {
-        let a = Math.floor(Math.random() * cities.length);
-        let b = Math.floor(Math.random() * cities.length);
-        if (a === b) b = (b + 1) % cities.length;
-        flows.push({
-          a, b,
-          phase: Math.random(),
-          speed: 0.0008 + Math.random() * 0.0015,
-          weight: 0.3 + Math.random() * 0.7,
+        // Major Chinese cities
+        const cities: [string, number, number][] = [
+          ["Beijing",   116.405, 39.917],
+          ["Shanghai",  121.473, 31.230],
+          ["Guangzhou", 113.264, 23.129],
+          ["Shenzhen",  114.058, 22.543],
+          ["Chengdu",   104.066, 30.572],
+          ["Chongqing", 106.551, 29.563],
+          ["Wuhan",     114.305, 30.593],
+          ["Xi'an",     108.940, 34.341],
+          ["Hangzhou",  120.155, 30.274],
+          ["Nanjing",   118.767, 32.041],
+          ["Tianjin",   117.190, 39.125],
+          ["Qingdao",   120.382, 36.067],
+          ["Kunming",   102.832, 24.880],
+          ["Harbin",    126.535, 45.802],
+          ["Urumqi",     87.617, 43.825],
+        ];
+
+        // OD pairs — origin/dest pulls everyone toward big cities
+        const data: { geometry: { type: "LineString"; coordinates: [number, number][] }; count: number }[] = [];
+        const heavy = [0, 1, 2, 3]; // Beijing/Shanghai/Guangzhou/Shenzhen draw heavily
+        for (let i = 0; i < cities.length; i++) {
+          for (const j of heavy) {
+            if (i === j) continue;
+            data.push({
+              geometry: {
+                type: "LineString",
+                coordinates: [
+                  [cities[i][1], cities[i][2]],
+                  [cities[j][1], cities[j][2]],
+                ],
+              },
+              count: 4 + Math.random() * 10,
+            });
+          }
+        }
+
+        const dataSet = new mapv.DataSet(data);
+        new mapv.baiduMapLayer(map, dataSet, {
+          strokeStyle: "rgba(121, 255, 225, 0.7)",
+          shadowColor: "rgba(121, 255, 225, 0.6)",
+          shadowBlur: 12,
+          lineWidth: 1.2,
+          globalAlpha: 0.85,
+          methods: { click: () => {} },
+          animation: {
+            stepsRange: { start: 0, end: 100 },
+            trailLength: 12,
+            duration: 18,
+            type: "default",
+          },
+          draw: "simple",
         });
-      }
-    };
-    seedFlows();
 
-    const arc = (
-      ax: number, ay: number, bx: number, by: number, t: number
-    ): [number, number, number, number] => {
-      // quadratic bezier with control offset perpendicular
-      const mx = (ax + bx) / 2;
-      const my = (ay + by) / 2;
-      const dx = bx - ax, dy = by - ay;
-      const len = Math.hypot(dx, dy);
-      const cx = mx - (dy / len) * len * 0.3;
-      const cy = my + (dx / len) * len * 0.3;
-      const x = (1 - t) * (1 - t) * ax + 2 * (1 - t) * t * cx + t * t * bx;
-      const y = (1 - t) * (1 - t) * ay + 2 * (1 - t) * t * cy + t * t * by;
-      // tangent
-      const tx = 2 * (1 - t) * (cx - ax) + 2 * t * (bx - cx);
-      const ty = 2 * (1 - t) * (cy - ay) + 2 * t * (by - cy);
-      return [x, y, tx, ty];
-    };
+        // City dot markers via second mapv layer
+        const cityData = cities.map(([, lng, lat]) => ({
+          geometry: { type: "Point", coordinates: [lng, lat] },
+          count: 1,
+        }));
+        new mapv.baiduMapLayer(map, new mapv.DataSet(cityData), {
+          fillStyle: "rgba(255, 126, 182, 1)",
+          shadowColor: "#ff7eb6",
+          shadowBlur: 16,
+          size: 5,
+          draw: "simple",
+        });
 
-    let raf = 0;
-    let t0 = performance.now();
-    const draw = () => {
-      const now = performance.now();
-      const dt = Math.min(50, now - t0);
-      t0 = now;
-
-      ctx.fillStyle = "rgba(10,10,16,0.25)";
-      ctx.fillRect(0, 0, w, h);
-
-      // map silhouette grid
-      ctx.strokeStyle = "rgba(40,40,55,0.4)";
-      for (let x = 0; x < w; x += 40) {
-        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
-      }
-      for (let y = 0; y < h; y += 40) {
-        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
-      }
-
-      // arcs (faint base)
-      flows.forEach((f) => {
-        const a = cities[f.a];
-        const b = cities[f.b];
-        ctx.beginPath();
-        const N = 24;
-        for (let i = 0; i <= N; i++) {
-          const t = i / N;
-          const [x, y] = arc(a.x * w, a.y * h, b.x * w, b.y * h, t);
-          if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-        }
-        ctx.strokeStyle = `rgba(255,126,182,${0.05 + f.weight * 0.1})`;
-        ctx.lineWidth = 1;
-        ctx.stroke();
+        // HUD
+        const hud = document.createElement("div");
+        hud.style.cssText = `
+          position:absolute;top:12px;left:12px;z-index:10;
+          color:rgba(255,255,255,0.85);font:11px ui-monospace,monospace;
+          background:rgba(10,10,16,0.75);padding:8px 12px;border-radius:6px;
+          border:1px solid rgba(121,255,225,0.3);pointer-events:none;
+        `;
+        hud.innerHTML = `
+          <div style="color:#79ffe1;margin-bottom:4px">mapv · MIGRATION FLOW</div>
+          <div>15 cities · 56 OD pairs · animated polyline trails</div>
+        `;
+        ref.current.appendChild(hud);
+      })
+      .catch(() => {
+        if (ref.current) ref.current.innerHTML = errorBox();
       });
-
-      // moving particles
-      flows.forEach((f) => {
-        f.phase = (f.phase + f.speed * dt) % 1;
-        const a = cities[f.a];
-        const b = cities[f.b];
-        for (let k = 0; k < 3; k++) {
-          const t = (f.phase + k * 0.33) % 1;
-          const [x, y] = arc(a.x * w, a.y * h, b.x * w, b.y * h, t);
-          const op = (1 - Math.abs(t - 0.5) * 2) * 0.9;
-          ctx.beginPath();
-          ctx.arc(x, y, 1.5 + f.weight * 1.5, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(255,126,182,${op * f.weight})`;
-          ctx.fill();
-        }
-      });
-
-      // city nodes
-      cities.forEach((c) => {
-        const cx = c.x * w, cy = c.y * h;
-        // glow
-        const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, c.size * 3);
-        g.addColorStop(0, "rgba(121,255,225,0.4)");
-        g.addColorStop(1, "rgba(121,255,225,0)");
-        ctx.fillStyle = g;
-        ctx.fillRect(cx - c.size * 3, cy - c.size * 3, c.size * 6, c.size * 6);
-        // dot
-        ctx.beginPath();
-        ctx.arc(cx, cy, c.size / 2, 0, Math.PI * 2);
-        ctx.fillStyle = "#79ffe1";
-        ctx.fill();
-        // label
-        ctx.fillStyle = "rgba(255,255,255,0.7)";
-        ctx.font = "10px ui-monospace, monospace";
-        ctx.fillText(c.name, cx + 8, cy + 3);
-      });
-
-      raf = requestAnimationFrame(draw);
-    };
-    draw();
 
     return () => {
-      cancelAnimationFrame(raf);
-      ro.disconnect();
+      alive = false;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const m = mapRef as any;
+      if (m && typeof m.destroy === "function") {
+        try { m.destroy(); } catch { /* noop */ }
+      }
     };
   }, []);
 
   return (
-    <div style={{ height: 360 }}>
-      <canvas ref={ref} />
+    <div style={{ height: 440, position: "relative" }}>
+      <div ref={ref} style={{ width: "100%", height: "100%" }} />
     </div>
   );
+}
+
+function errorBox() {
+  return `<div style="height:100%;display:flex;align-items:center;justify-content:center;color:#8b8a96;font-family:ui-monospace,monospace;font-size:12px;">mapv migration failed to load</div>`;
 }

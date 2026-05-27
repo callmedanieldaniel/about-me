@@ -6,7 +6,7 @@ export default function Home() {
   return (
     <div className="shell">
       <div className="nav">
-        <div className="brand"><span className="dot" />Shen Yang</div>
+        <div className="brand"><span className="dot" />ZIV</div>
         <nav>
           <a href="#work">work</a>
           <a href="https://github.com/callmedanieldaniel" target="_blank" rel="noopener noreferrer">github</a>
@@ -60,7 +60,7 @@ export default function Home() {
       </section>
 
       <footer className="foot">
-        <span>© {new Date().getFullYear()} Shen Yang</span>
+        <span>© {new Date().getFullYear()} ZIV · <a href="mailto:ziv.king@outlook.com">ziv.king@outlook.com</a></span>
         <a href="https://github.com/callmedanieldaniel" target="_blank" rel="noopener noreferrer">github.com/callmedanieldaniel</a>
       </footer>
     </div>

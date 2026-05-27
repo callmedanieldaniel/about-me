@@ -11,6 +11,7 @@ import MapvProDemo from "../../demos/MapvProDemo";
 import L7Demo from "../../demos/L7Demo";
 import AdSceneDemo from "../../demos/AdSceneDemo";
 import AmapSdkDemo from "../../demos/AmapSdkDemo";
+import BaiduSdkDemo from "../../demos/BaiduSdkDemo";
 import DemoFrame from "../../demos/DemoFrame";
 
 export function generateStaticParams() {
@@ -22,8 +23,8 @@ function Demo({ slug }: { slug: string }) {
     case "mapv":
       return (
         <DemoFrame
-          title="mapv.density()"
-          caption="Heatmap rendered from ~1,600 simulated population points · 12px binning, mapv-style cool→hot ramp."
+          title="new mapv.baiduMapLayer() · heatmap"
+          caption="Real mapv on Baidu Map GL · 5,400 points across 6 Beijing hotspots · gaussian heatmap, midnight style."
         >
           <MapvDemo />
         </DemoFrame>
@@ -31,8 +32,8 @@ function Demo({ slug }: { slug: string }) {
     case "loca":
       return (
         <DemoFrame
-          title="Loca.Layer.PolygonLayer"
-          caption="Procedural city of extruded blocks · height-mapped color, orbital camera, ground sweep."
+          title="new Loca.Container() · 3D buildings + pulse line"
+          caption="Real AMap + Loca v2 · Shanghai · extruded buildings (pink→teal ramp), animated pulse polyline, breathing scatter."
         >
           <LocaDemo />
         </DemoFrame>
@@ -40,8 +41,8 @@ function Demo({ slug }: { slug: string }) {
     case "truck":
       return (
         <DemoFrame
-          title="AMap.TruckRoute.search()"
-          caption="Multi-stop route with 3 truck-restricted zones · animated traversal, ETA decreases in realtime."
+          title="AMap.Driving.search() + restricted polygons"
+          caption="Real AMap routing · 2 waypoints, 2 truck-restricted zones drawn as dashed polygons."
         >
           <TruckDemo />
         </DemoFrame>
@@ -49,8 +50,8 @@ function Demo({ slug }: { slug: string }) {
     case "qianxi":
       return (
         <DemoFrame
-          title="qianxi.flow.bezier()"
-          caption="24 origin-destination flows across 9 cities · bezier arcs with phased particles."
+          title="new mapv.baiduMapLayer() · migration"
+          caption="Real mapv migration layer on Baidu Map · 15 cities, 56 OD pairs · animated polyline trails."
         >
           <QianxiDemo />
         </DemoFrame>
@@ -58,8 +59,8 @@ function Demo({ slug }: { slug: string }) {
     case "jiaotong":
       return (
         <DemoFrame
-          title="trafficSpeed.subscribe()"
-          caption="Ring road + radial network · per-segment speed sampled at 1 Hz, color-coded jam / slow / free."
+          title="new AMap.TileLayer.Traffic()"
+          caption="Real-time AMap traffic tiles · Beijing · refreshed every 60s from the network."
         >
           <JiaotongDemo />
         </DemoFrame>
@@ -67,8 +68,8 @@ function Demo({ slug }: { slug: string }) {
     case "renqi":
       return (
         <DemoFrame
-          title="renqi.isochrone()"
-          caption="Population heat blobs + 4-ring isochrone around a candidate POI · the site-selection workflow."
+          title="new AMap.Heatmap() + AMap.Circle"
+          caption="Real AMap heatmap (320 points / 4 clusters) + 4-ring isochrone (5/10/15/20 min)."
         >
           <RenqiDemo />
         </DemoFrame>
@@ -76,8 +77,8 @@ function Demo({ slug }: { slug: string }) {
     case "mapv-pro":
       return (
         <DemoFrame
-          title="mapv-pro.Dashboard"
-          caption="Big-screen composition · live KPI tiles, 60-second sparkline, top-N bar, animated map nodes."
+          title="big-screen composition · Loca + dashboard"
+          caption="Real Loca scatter + pulse-line layer (Beijing→cities) + live KPI tiles, sparkline, top-N bars."
         >
           <MapvProDemo />
         </DemoFrame>
@@ -85,8 +86,8 @@ function Demo({ slug }: { slug: string }) {
     case "l7":
       return (
         <DemoFrame
-          title="L7.HexagonLayer"
-          caption="2D gaussian field → hex aggregation · data-driven height and color, ~250 cells."
+          title="hex aggregation via Loca.PolygonLayer"
+          caption="Real AMap + Loca · gaussian field aggregated into hex tiles · data-driven height and color."
         >
           <L7Demo />
         </DemoFrame>
@@ -103,10 +104,19 @@ function Demo({ slug }: { slug: string }) {
     case "amap-sdk":
       return (
         <DemoFrame
-          title="new AMap.Map()"
-          caption="Pan with drag, zoom with scroll · procedural vector tiles, parks, roads, markers."
+          title="new AMap.Map() · v2.0 · 3D"
+          caption="Real AMap JS API v2 · Shanghai · dark style, 50° pitch, 3D buildings, auto-rotation."
         >
           <AmapSdkDemo />
+        </DemoFrame>
+      );
+    case "baidu-sdk":
+      return (
+        <DemoFrame
+          title="new BMapGL.Map() · 3D"
+          caption="Real Baidu Map GL · Beijing · 60° tilt, midnight style, heading sweep, labeled markers."
+        >
+          <BaiduSdkDemo />
         </DemoFrame>
       );
     default:
