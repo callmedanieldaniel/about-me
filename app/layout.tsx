@@ -1,19 +1,30 @@
 import type { Metadata } from "next";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
+});
+
+const mono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
-  title: "Shen Yang | AD AI Tooling Frontend Engineer",
+  title: "Shen Yang — Frontend Engineer, AD Tooling",
   description:
-    "Frontend and full-stack engineer building autonomous-driving AI tooling, 3D scene playback, real-time visualization, and high-performance streaming systems.",
+    "Frontend engineer building autonomous-driving tooling: 3D scene playback, sensor visualization, training dashboards. 8+ years. Ex-DiDi, NIO, Alibaba, Baidu.",
 };
 
-type RootLayoutProps = Readonly<{
-  children: React.ReactNode;
-}>;
-
-export default function RootLayout({ children }: RootLayoutProps) {
+export default function RootLayout({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${inter.variable} ${mono.variable}`}>
       <body>{children}</body>
     </html>
   );
