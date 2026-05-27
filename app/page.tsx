@@ -1,192 +1,274 @@
-import Scene from "./Scene";
-
 export default function Home() {
   return (
-    <>
-      <Scene />
-
-      <header className="nav">
-        <div className="brand"><span className="dot" /> SHEN&nbsp;YANG</div>
-        <nav>
-          <a href="#about">About</a>
-          <a href="#work">Work</a>
-          <a href="#case">Case</a>
-          <a href="#stack">Stack</a>
-          <a href="#contact">Contact</a>
-        </nav>
+    <main>
+      <header className="intro">
+        <h1>Shen Yang</h1>
+        <p className="role">
+          Frontend engineer. Eight years building developer tooling, 3D scene
+          viewers, and real-time visualization for autonomous-driving and ML
+          teams.
+        </p>
+        <div className="links">
+          <a href="mailto:tell.k@outlook.com">tell.k@outlook.com</a>
+          <a
+            href="https://github.com/callmedanieldaniel"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            GitHub
+          </a>
+          <span>Shanghai · open to relocation (tier-1 China)</span>
+        </div>
       </header>
 
-      <main>
-        <section className="hero">
-          <div className="kicker">FRONTEND&nbsp;·&nbsp;AUTONOMOUS&nbsp;DRIVING&nbsp;TOOLING</div>
-          <h1>
-            I build the tooling<br />
-            that ships <span className="hl">autonomy</span>.
-          </h1>
-          <p className="lede">
-            8+ years in frontend. The last 4 spent building 3D scene viewers,
-            multi-sensor playback, and ML training dashboards for AD teams at{" "}
-            <b>DiDi</b> and <b>NIO</b>. The Tesla Autopilot AI Tooling JD
-            describes the work I&apos;ve been doing.
+      <section>
+        <h2>About</h2>
+        <p>
+          I build the internal tools that ML and autonomous-driving teams use
+          every day — annotation, scene playback, training monitoring,
+          experiment dashboards. I care about frame-accurate rendering,
+          low-latency sensor streams, and APIs the perception team enjoys
+          using.
+        </p>
+        <p>
+          I&apos;m currently a full-stack architect on a financial AI analytics
+          product, owning real-time visualization and the streaming pipeline
+          end-to-end (React, Next.js, Go, Python/FastAPI, gRPC, WebSocket). The
+          shape of the problem is the same as AD tooling; AD tooling is the
+          domain I want to come back to.
+        </p>
+        <p>
+          The Tesla Autopilot AI Tooling JD describes the work I&apos;ve been
+          doing for the past four years.
+        </p>
+      </section>
+
+      <section>
+        <h2>Experience</h2>
+        <ul className="plain">
+          <li className="entry">
+            <div>
+              <div className="role-line">Full-Stack Architect</div>
+              <div className="org">Innovation Platform Team</div>
+            </div>
+            <div className="when">May 2024 — Present</div>
+            <p className="detail">
+              Building a financial AI analytics product end-to-end. Real-time
+              visualization, high-performance streaming and processing. React,
+              Next.js, Go, Python (FastAPI), gRPC, WebSocket.
+            </p>
+          </li>
+
+          <li className="entry">
+            <div>
+              <div className="role-line">
+                Frontend Lead, AD AI Tooling Platform
+              </div>
+              <div className="org">DiDi</div>
+            </div>
+            <div className="when">Sep 2022 — Apr 2024</div>
+            <p className="detail">
+              Led the browser-based model-training toolchain behind every AD
+              iteration — data, perception, planning, simulation. See selected
+              project below.
+            </p>
+          </li>
+
+          <li className="entry">
+            <div>
+              <div className="role-line">Frontend Owner, AD Data Platform</div>
+              <div className="org">NIO</div>
+            </div>
+            <div className="when">Apr 2021 — Sep 2022</div>
+            <p className="detail">
+              Data labeling, scene management, and review tooling for the
+              autonomous-driving data team.
+            </p>
+          </li>
+
+          <li className="entry">
+            <div>
+              <div className="role-line">
+                Frontend Owner, AMap Visualization
+              </div>
+              <div className="org">Alibaba</div>
+            </div>
+            <div className="when">Aug 2019 — Apr 2021</div>
+            <p className="detail">
+              Map and geospatial visualization. Open-source contributor to
+              Mapv.
+            </p>
+          </li>
+
+          <li className="entry">
+            <div>
+              <div className="role-line">
+                Frontend Engineer, Maps &amp; Open Platform
+              </div>
+              <div className="org">Baidu</div>
+            </div>
+            <div className="when">Jul 2017 — Aug 2019</div>
+            <p className="detail">
+              Web SDK and developer tooling for the Baidu Maps Open Platform.
+            </p>
+          </li>
+        </ul>
+      </section>
+
+      <section className="project">
+        <h2>Selected Project</h2>
+        <h3>DiDi AD Model-Training Toolchain</h3>
+        <p className="meta">2022 — 2024 · Frontend Lead</p>
+
+        <p>
+          The platform behind every model iteration for DiDi&apos;s data,
+          perception, planning, and simulation teams.
+        </p>
+
+        <p>
+          <strong>Problem.</strong> AD researchers couldn&apos;t replay
+          multi-sensor scenes (point cloud, camera, LiDAR) in the browser at
+          full fidelity. They kept falling back to desktop ROS tools,
+          fragmenting the toolchain and slowing iteration.
+        </p>
+
+        <p>
+          <strong>What I built.</strong>
+        </p>
+        <ul>
+          <li>
+            Three.js / WebGL rendering engine on top of RViz and Foxglove
+            (Webviz), with PlotJuggler-style telemetry plots.
+          </li>
+          <li>
+            ROS-to-web bridge via rosbridge — streamed rosbag2 recordings and
+            live ROS topics directly to the browser.
+          </li>
+          <li>
+            200 Mb/s end-to-end gRPC / Protobuf pipeline plus multi-stream
+            WebCodecs / H.264 video at &lt;100 ms latency, 20 FPS.
+          </li>
+          <li>
+            Unified React / Vue / Android rendering engine — same code path
+            powered the web tools and the in-vehicle HMI.
+          </li>
+        </ul>
+
+        <div className="impact">
+          <p>
+            <strong>Impact.</strong>
           </p>
-          <div className="cta">
-            <a className="btn primary" href="#case">See the work →</a>
-            <a className="btn" href="https://github.com/callmedanieldaniel" target="_blank" rel="noopener noreferrer">GitHub</a>
-            <a className="btn" href="mailto:tell.k@outlook.com">Email</a>
-          </div>
-          <div className="meta">
-            <span>Shanghai · open to relocation (tier-1 CN)</span>
-            <span>·</span>
-            <span>2–4 weeks to start</span>
-          </div>
-        </section>
-
-        <section id="about" className="block">
-          <div className="label">01 / ABOUT</div>
-          <div className="grid two">
-            <div>
-              <h2>Frontend engineer with a focus on AD &amp; robotics ML tooling.</h2>
-            </div>
-            <div className="prose">
-              <p>
-                I build internal tools that AD researchers actually live in —
-                annotation, scene playback, training monitoring, experiment
-                dashboards. I care about <b>frame-accurate</b> rendering,{" "}
-                <b>low-latency</b> sensor streams, and APIs the perception
-                team enjoys using.
-              </p>
-              <p>
-                Currently full-stack architect on a financial AI analytics product —
-                real-time visualization, streaming pipelines, React / Next.js / Go /
-                Python (FastAPI) / gRPC / WebSocket. The shape of the problem is the
-                same as AD tooling; the domain is what I want to come back to.
-              </p>
-              <p>Tesla shareholder. Want to help ship FSD in China.</p>
-            </div>
-          </div>
-        </section>
-
-        <section id="work" className="block">
-          <div className="label">02 / WORK</div>
-          <ol className="timeline">
+          <ul>
+            <li>~200% rendering performance gain.</li>
             <li>
-              <div className="when">2024 — Now</div>
-              <div>
-                <h3>Full-Stack Architect · Innovation Platform Team</h3>
-                <p>Financial AI analytics product, end-to-end. Real-time data viz, high-performance streaming &amp; processing. React, Next.js, Go, Python (FastAPI), gRPC, WebSocket.</p>
-              </div>
+              Adopted as the AD data team&apos;s primary daily workspace (&gt;4
+              hours daily time-in-tool per researcher).
             </li>
-            <li>
-              <div className="when">2022 — 2024</div>
-              <div>
-                <h3>Frontend Lead, AD AI Tooling Platform · DiDi</h3>
-                <p>Built the model-training toolchain behind every AD iteration — data, perception, planning, simulation. 3D scene viewer on Three.js / WebGL, rosbridge ↔ browser, 200 Mb/s gRPC / Protobuf pipeline, multi-stream H.264 / WebCodecs &lt;100ms. ~200% rendering perf gain. Annual Efficiency Contribution Award.</p>
+            <li>Earned the company-wide annual Efficiency Contribution Award.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2>Skills</h2>
+
+        <div className="skills-group">
+          <span className="k">Languages</span>
+          <span className="v">
+            TypeScript / JavaScript (8+ yrs) · Python · Go · C++ (working)
+          </span>
+        </div>
+
+        <div className="skills-group">
+          <span className="k">3D &amp; Viz</span>
+          <span className="v">
+            Three.js · WebGL · Canvas · RViz · Foxglove (Webviz) · PlotJuggler ·
+            ECharts · D3
+          </span>
+        </div>
+
+        <div className="skills-group">
+          <span className="k">ROS &amp; Streaming</span>
+          <span className="v">
+            rosbridge · rosbag2 · Protobuf · WebCodecs · H.264 · WebRTC ·
+            WebSocket · SSE
+          </span>
+        </div>
+
+        <div className="skills-group">
+          <span className="k">Frontend</span>
+          <span className="v">
+            React · Next.js · React Native · Redux · TypeScript
+          </span>
+        </div>
+
+        <div className="skills-group">
+          <span className="k">Backend</span>
+          <span className="v">Node.js · Go · Python (FastAPI) · gRPC</span>
+        </div>
+
+        <div className="skills-group">
+          <span className="k">Mapping</span>
+          <span className="v">
+            Leaflet · Mapbox · Mapv (open-source contributor)
+          </span>
+        </div>
+
+        <div className="skills-group">
+          <span className="k">Data / Infra</span>
+          <span className="v">PostgreSQL · Redis · Kafka · Docker</span>
+        </div>
+
+        <div className="skills-group">
+          <span className="k">Platforms</span>
+          <span className="v">macOS · Linux / Ubuntu</span>
+        </div>
+      </section>
+
+      <section>
+        <h2>Education</h2>
+        <ul className="plain">
+          <li className="entry">
+            <div>
+              <div className="role-line">
+                Peking University &mdash; M.E.M. (Engineering Management)
               </div>
-            </li>
-            <li>
-              <div className="when">2021 — 2022</div>
-              <div>
-                <h3>Frontend Owner, AD Data Platform · NIO</h3>
-                <p>Data labeling, scene management and review tooling for the autonomous-driving data team.</p>
+            </div>
+            <div className="when">2020 — 2022</div>
+          </li>
+          <li className="entry">
+            <div>
+              <div className="role-line">
+                Qufu Normal University &mdash; B.Eng., Automation
               </div>
-            </li>
-            <li>
-              <div className="when">2019 — 2021</div>
-              <div>
-                <h3>Frontend Owner, AMap Visualization · Alibaba</h3>
-                <p>Map &amp; geospatial visualization. Open-source contributor to Mapv.</p>
-              </div>
-            </li>
-            <li>
-              <div className="when">2017 — 2019</div>
-              <div>
-                <h3>Frontend Engineer, Maps &amp; Open Platform · Baidu</h3>
-                <p>Web SDK and developer tooling for Baidu Maps Open Platform.</p>
-              </div>
-            </li>
-          </ol>
-          <div className="edu">
-            <span>Peking University — M.E.M., 2020–2022</span>
-            <span>·</span>
-            <span>Qufu Normal University — B.Eng. Automation, 2013–2017</span>
-          </div>
-        </section>
+            </div>
+            <div className="when">2013 — 2017</div>
+          </li>
+        </ul>
+      </section>
 
-        <section id="case" className="block">
-          <div className="label">03 / CASE STUDY</div>
-          <h2>
-            DiDi AD Model-Training Toolchain
-            <span className="muted"> · 2022–2024</span>
-          </h2>
+      <section>
+        <h2>Why Tesla</h2>
+        <p>
+          Four years building autonomous-driving tooling at NIO and DiDi gave me
+          deep respect for Tesla&apos;s technical direction — enough that
+          I&apos;m a long-term shareholder. I want to help accelerate FSD&apos;s
+          rollout in China and bring this experience to drivers here. This is
+          the work I&apos;m here to do.
+        </p>
+        <p>Onboarding: 2 – 4 weeks from offer.</p>
+      </section>
 
-          <div className="grid two case">
-            <div>
-              <h4>Problem</h4>
-              <p>AD researchers couldn&apos;t replay multi-sensor scenes (point cloud, camera, LiDAR) in the browser at full fidelity. They kept falling back to desktop ROS tools — fragmenting the toolchain, slowing every iteration.</p>
-            </div>
-            <div>
-              <h4>What I built</h4>
-              <ul>
-                <li>Three.js / WebGL rendering engine on top of RViz &amp; Foxglove (Webviz), with PlotJuggler-style telemetry plots.</li>
-                <li>ROS ↔ web bridge via rosbridge — streamed <code>rosbag2</code> recordings and live ROS topics straight to the browser.</li>
-                <li>200 Mb/s end-to-end gRPC / Protobuf pipeline + multi-stream WebCodecs / H.264 at &lt;100 ms latency, 20 FPS.</li>
-                <li>One rendering engine, three surfaces — same code path drove React, Vue, and the Android in-vehicle HMI.</li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="kpis">
-            <div><b>~200%</b><span>rendering perf gain</span></div>
-            <div><b>&lt;100 ms</b><span>multi-stream video latency</span></div>
-            <div><b>&gt;4 h/day</b><span>per-researcher time-in-tool</span></div>
-            <div><b>Annual</b><span>Efficiency Contribution Award</span></div>
-          </div>
-        </section>
-
-        <section id="stack" className="block">
-          <div className="label">04 / STACK</div>
-          <div className="grid stack">
-            <div>
-              <h4>Languages</h4>
-              <p>TypeScript / JavaScript · Python · Go · C++ (working)</p>
-            </div>
-            <div>
-              <h4>3D &amp; Visualization</h4>
-              <p>Three.js · WebGL · Canvas · RViz · Foxglove (Webviz) · PlotJuggler · ECharts · D3</p>
-            </div>
-            <div>
-              <h4>ROS &amp; Streaming</h4>
-              <p>rosbridge · rosbag2 · Protobuf · WebCodecs · H.264 · WebRTC · WebSocket · SSE</p>
-            </div>
-            <div>
-              <h4>Frontend</h4>
-              <p>React · Next.js · React Native · Redux · TypeScript</p>
-            </div>
-            <div>
-              <h4>Backend</h4>
-              <p>Node.js · Go · Python (FastAPI) · gRPC</p>
-            </div>
-            <div>
-              <h4>Mapping &amp; Infra</h4>
-              <p>Leaflet · Mapbox · Mapv (OSS) · PostgreSQL · Redis · Kafka · Docker</p>
-            </div>
-          </div>
-        </section>
-
-        <section id="contact" className="block contact">
-          <div className="label">05 / CONTACT</div>
-          <h2>Let&apos;s build the tooling FSD needs in China.</h2>
-          <div className="cta">
-            <a className="btn primary" href="mailto:tell.k@outlook.com">tell.k@outlook.com</a>
-            <a className="btn" href="https://github.com/callmedanieldaniel" target="_blank" rel="noopener noreferrer">github.com/callmedanieldaniel</a>
-          </div>
-        </section>
-      </main>
-
-      <footer className="site">
-        <span>© {new Date().getFullYear()} Shen Yang</span>
-        <span className="mono">built with next.js · three.js</span>
+      <footer className="foot">
+        <a href="mailto:tell.k@outlook.com">tell.k@outlook.com</a> ·{" "}
+        <a
+          href="https://github.com/callmedanieldaniel"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          github.com/callmedanieldaniel
+        </a>
       </footer>
-    </>
+    </main>
   );
 }
