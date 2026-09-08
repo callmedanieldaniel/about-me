@@ -1,4 +1,6 @@
 import Link from "next/link";
+import type { Metadata } from "next";
+import ScenePlayground from "../../components/ScenePlayground";
 import { notFound } from "next/navigation";
 import { projects, getProject } from "../data";
 import MapvDemo from "../../demos/MapvDemo";
@@ -14,11 +16,47 @@ import AmapSdkDemo from "../../demos/AmapSdkDemo";
 import BaiduSdkDemo from "../../demos/BaiduSdkDemo";
 import DemoFrame from "../../demos/DemoFrame";
 
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const project = getProject(slug);
+  return {
+    title: project?.title ?? "Study not found",
+    description: project?.tagline,
+  };
+}
+
 export function generateStaticParams() {
   return projects.map((p) => ({ slug: p.slug }));
 }
 
 function Demo({ slug }: { slug: string }) {
+  const needsBaidu = ["mapv", "qianxi", "baidu-sdk"].includes(slug);
+  const configured = needsBaidu
+    ? Boolean(process.env.NEXT_PUBLIC_BAIDU_KEY)
+    : Boolean(process.env.NEXT_PUBLIC_AMAP_KEY);
+  if (slug === "ad-toolchain" || !configured) {
+    const mode =
+      slug === "ad-toolchain"
+        ? "lidar"
+        : ["qianxi", "truck", "mapv-pro", "baidu-sdk"].includes(slug)
+          ? "network"
+          : "field";
+    return (
+      <>
+        <div className="demo-wrap">
+          <ScenePlayground initialMode={mode} compact />
+        </div>
+        <p className="demo-caption">
+          Interactive synthetic study · illustrative geometry, not a recording
+          of a production system or real geographic data.
+        </p>
+      </>
+    );
+  }
   switch (slug) {
     case "mapv":
       return (
@@ -135,7 +173,9 @@ export default async function ProjectPage({
 
   return (
     <div className="shell project-page">
-      <Link href="/" className="back">← all work</Link>
+      <Link href="/" className="back">
+        ← all work
+      </Link>
 
       <header>
         <p className="kicker">{project.org}</p>
@@ -144,7 +184,12 @@ export default async function ProjectPage({
         {project.links.length > 0 && (
           <div className="ext-links">
             {project.links.map((l) => (
-              <a key={l.href} href={l.href} target="_blank" rel="noopener noreferrer">
+              <a
+                key={l.href}
+                href={l.href}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 {l.label} ↗
               </a>
             ))}
@@ -158,284 +203,125 @@ export default async function ProjectPage({
 
       <footer className="foot">
         <Link href="/">← all work</Link>
-        <a href="https://github.com/callmedanieldaniel" target="_blank" rel="noopener noreferrer">github.com/callmedanieldaniel</a>
+        <span>FIELDWORK / ENGINEERING STUDIES</span>
       </footer>
     </div>
   );
 }
 
+const notes: Record<string, { focus: string; techniques: string[] }> = {
+  "ad-toolchain": {
+    focus:
+      "Bring point clouds, object bounds, and synchronized telemetry into a browser workspace for perception and simulation analysis.",
+    techniques: [
+      "Render multi-sensor scene data with Three.js and WebGL.",
+      "Coordinate streaming and playback across interfaces using Protobuf, gRPC, and browser media APIs.",
+      "Separate data ingestion, scene state, and rendering so tools can share a consistent engine.",
+    ],
+  },
+  mapv: {
+    focus:
+      "Make dense spatial datasets readable through a consistent family of rendering layers.",
+    techniques: [
+      "Aggregate samples before drawing heatmaps and point layers.",
+      "Use Canvas and WebGL according to data density and interaction requirements.",
+    ],
+  },
+  loca: {
+    focus:
+      "Explore how height, color, and movement reveal patterns in spatial data.",
+    techniques: [
+      "Compose extruded polygons, scatter layers, and animated paths.",
+      "Keep camera interaction and layer state independent from data updates.",
+    ],
+  },
+  truck: {
+    focus:
+      "Represent routes, waypoints, and restricted areas clearly enough to support a planning workflow.",
+    techniques: [
+      "Distinguish planned paths from restriction overlays.",
+      "Keep the visualization separate from the routing service and its constraints.",
+    ],
+  },
+  qianxi: {
+    focus:
+      "Show origin-destination relationships and direction across a spatial network.",
+    techniques: [
+      "Use curved paths to separate overlapping flows.",
+      "Animate particles along paths without changing the underlying data.",
+    ],
+  },
+  jiaotong: {
+    focus:
+      "Connect road-network visualization to changing traffic measurements.",
+    techniques: [
+      "Encode segment conditions using a consistent color scale.",
+      "Separate periodic data refreshes from the rendering loop.",
+    ],
+  },
+  renqi: {
+    focus:
+      "Support geographic exploration through density layers and distance-based overlays.",
+    techniques: [
+      "Combine points of interest with heatmap layers.",
+      "Distinguish illustrative distance rings from routing-based travel-time calculations.",
+    ],
+  },
+  "mapv-pro": {
+    focus:
+      "Compose spatial views, charts, and streaming indicators into a reusable analysis surface.",
+    techniques: [
+      "Maintain clear boundaries between data adapters and display components.",
+      "Coordinate updates without rebuilding the entire workspace.",
+    ],
+  },
+  "amap-sdk": {
+    focus:
+      "Design reusable map interfaces around layers, overlays, events, and camera state.",
+    techniques: [
+      "Make rendering primitives composable through a stable SDK.",
+      "Handle initialization, interaction, and disposal as explicit lifecycle steps.",
+    ],
+  },
+  l7: {
+    focus:
+      "Reduce complex spatial distributions to a readable field of aggregated cells.",
+    techniques: [
+      "Bin spatial samples into a hexagonal grid.",
+      "Map aggregation values to extrusion height and color.",
+    ],
+  },
+  "baidu-sdk": {
+    focus:
+      "Connect API capabilities with the documentation, examples, and interfaces developers need.",
+    techniques: [
+      "Build reusable SDK and rendering abstractions.",
+      "Create clear integration paths across platform APIs and browser tooling.",
+    ],
+  },
+};
 function ProjectBody({ slug }: { slug: string }) {
-  switch (slug) {
-    case "ad-toolchain":
-      return (
-        <>
-          <section>
-            <h2>What it is</h2>
-            <p>
-              The browser workspace that DiDi&apos;s AD researchers used every day —
-              data, perception, planning, simulation. Replaced a fragmented mix of
-              desktop ROS tools (RViz, Foxglove, PlotJuggler) with a single
-              web-native viewer.
-            </p>
-          </section>
-          <section>
-            <h2>The interesting parts</h2>
-            <ul>
-              <li><strong>Three.js / WebGL scene viewer</strong> on top of RViz &amp; Foxglove (Webviz) — full-fidelity LiDAR playback, multi-camera mosaic, 3D bounding boxes synced to perception outputs.</li>
-              <li><strong>ROS ↔ browser bridge</strong> via rosbridge — streamed rosbag2 recordings and live ROS topics into the browser.</li>
-              <li><strong>200 Mb/s gRPC / Protobuf</strong> pipeline + multi-stream WebCodecs / H.264 video at &lt;100 ms latency, 20 FPS.</li>
-              <li><strong>One rendering engine, three surfaces</strong> — the same code path drove React tools, a Vue analyst portal, and the Android in-vehicle HMI.</li>
-            </ul>
-          </section>
-          <div className="kpi-grid">
-            <div><b>~200%</b><span>render perf gain</span></div>
-            <div><b>&lt;100 ms</b><span>video latency</span></div>
-            <div><b>&gt;4 h/day</b><span>per-researcher use</span></div>
-          </div>
-          <section>
-            <h2>Why it mattered</h2>
-            <p>
-              Became the AD data team&apos;s primary daily workspace. Earned the
-              company-wide annual Efficiency Contribution Award.
-            </p>
-            <p style={{ fontSize: 13, color: "var(--muted)" }}>
-              The demo above is a stylized recreation — the internal viewer is
-              not publicly accessible.
-            </p>
-          </section>
-        </>
-      );
-    case "mapv":
-      return (
-        <>
-          <section>
-            <h2>What it is</h2>
-            <p>
-              Open-source spatial-data visualization library used across Baidu
-              Maps Open Platform. Renders heatmaps, point clouds, animated
-              origin-destination flows, choropleth, and clustered markers on a
-              shared Canvas / WebGL pipeline.
-            </p>
-          </section>
-          <section>
-            <h2>What I contributed</h2>
-            <ul>
-              <li>Performance work on the canvas renderer (binned heatmap, grid aggregation).</li>
-              <li>Animated flow layer — bezier paths with phased particle streams.</li>
-              <li>Gallery samples + docs for the public-facing site.</li>
-            </ul>
-          </section>
-          <section>
-            <h2>The demo above</h2>
-            <p>
-              Reimplements the heatmap path in ~200 lines of canvas: ~1,600 points
-              with a 12-pixel binning kernel and a mapv-style cool→hot color ramp.
-              Same algorithm, no library — just the math.
-            </p>
-          </section>
-        </>
-      );
-    case "loca":
-      return (
-        <>
-          <section>
-            <h2>What it is</h2>
-            <p>
-              The 3D visualization engine for AMap (Alibaba) — extruded
-              buildings, animated heatmaps, scan effects, scatter and arc layers
-              composed over the AMap tile base.
-            </p>
-          </section>
-          <section>
-            <h2>What I worked on</h2>
-            <ul>
-              <li>Polygon extrusion layer with data-driven height and color.</li>
-              <li>Animated scan / sweep overlays.</li>
-              <li>Camera path scripting for showcase demos.</li>
-            </ul>
-          </section>
-          <section>
-            <h2>The demo above</h2>
-            <p>
-              Pure Three.js recreation of the Loca extrude pattern — height-driven
-              hue ramp, edge wireframes, an orbital camera and a ground sweep bar.
-              No AMap SDK, no API key.
-            </p>
-          </section>
-        </>
-      );
-    case "truck":
-      return (
-        <>
-          <section>
-            <h2>What it is</h2>
-            <p>
-              End-to-end logistics planning surface for AMap LBS — designed for
-              freight operators. Handles truck-class restrictions (height, weight,
-              hazmat), time-windowed road closures, and multi-stop optimization.
-            </p>
-          </section>
-          <section>
-            <h2>The demo above</h2>
-            <p>
-              Mock dispatch UI — a routed waypoint chain that avoids three
-              truck-restricted zones. Animates the truck along the polyline with
-              a live ETA. Real product has full road-network routing; this is the
-              visualization layer in isolation.
-            </p>
-          </section>
-        </>
-      );
-    case "qianxi":
-      return (
-        <>
-          <section>
-            <h2>What it is</h2>
-            <p>
-              Baidu&apos;s public-facing migration big-data product — visualizes
-              inter-city population flow at provincial and city granularity, daily.
-              During Spring Festival it&apos;s one of the most-cited data products
-              in Chinese media.
-            </p>
-          </section>
-          <section>
-            <h2>The demo above</h2>
-            <p>
-              24 origin-destination flows across 9 cities, rendered as bezier arcs
-              with three phased particles each. The same primitive used in the
-              production map, scaled down.
-            </p>
-          </section>
-        </>
-      );
-    case "jiaotong":
-      return (
-        <>
-          <section>
-            <h2>What it is</h2>
-            <p>
-              City-scale realtime traffic for Baidu Maps — every road segment
-              colored by realtime average speed, refreshed at 1 Hz from the
-              backend. Used by municipal traffic ops centers.
-            </p>
-          </section>
-          <section>
-            <h2>The demo above</h2>
-            <p>
-              Procedural ring + radial + grid network. Each segment has its own
-              speed that drifts; the color ramp (jam / slow / free) and a moving
-              particle communicate flow direction.
-            </p>
-          </section>
-        </>
-      );
-    case "renqi":
-      return (
-        <>
-          <section>
-            <h2>What it is</h2>
-            <p>
-              Site-selection workflow for retail and real-estate — combines POI
-              density heat, demographic overlays, and isochrone (5/10/15/20-min
-              walking) analysis around a candidate location.
-            </p>
-          </section>
-          <section>
-            <h2>The demo above</h2>
-            <p>
-              Heat blobs + four expanding rings around a chosen POI. Simulates
-              the &quot;is this address worth opening a store at&quot; analytic.
-            </p>
-          </section>
-        </>
-      );
-    case "mapv-pro":
-      return (
-        <>
-          <section>
-            <h2>What it is</h2>
-            <p>
-              Enterprise dashboard composer — a drag-drop big-screen builder
-              with realtime SSE / WebSocket connectors, used by city ops and
-              business intelligence teams.
-            </p>
-          </section>
-          <section>
-            <h2>The demo above</h2>
-            <p>
-              Layout of one of the default templates — live KPI tiles, a 60-second
-              throughput sparkline, a top-N city bar chart, and an animated map
-              panel. All driven by deterministic noise so it looks alive without a
-              backend.
-            </p>
-          </section>
-        </>
-      );
-    case "amap-sdk":
-      return (
-        <>
-          <section>
-            <h2>What it is</h2>
-            <p>
-              The core JavaScript map SDK for AMap (AMap JS API v2) — vector
-              tiles, layer system, official layer pack, marker / overlay APIs,
-              backward compatibility with v1.
-            </p>
-          </section>
-          <section>
-            <h2>The demo above</h2>
-            <p>
-              Tiny &quot;map kernel&quot; — pan with drag, zoom with scroll,
-              procedural tiles + roads + parks + markers. The API shape of the
-              real product, in a few hundred lines.
-            </p>
-          </section>
-        </>
-      );
-    case "l7":
-      return (
-        <>
-          <section>
-            <h2>What it is</h2>
-            <p>
-              AntV L7 — the open-source geospatial visualization framework from
-              Alibaba&apos;s AntV team. The hex-grid aggregation layer is one of
-              its signature primitives, used for population, mobility, and
-              business analytics.
-            </p>
-          </section>
-          <section>
-            <h2>The demo above</h2>
-            <p>
-              Generated 2D gaussian field aggregated into a hex grid, extruded by
-              value and colored by a divergent ramp. Camera orbits; heights
-              breathe slightly to make the field feel alive.
-            </p>
-          </section>
-        </>
-      );
-    case "baidu-sdk":
-      return (
-        <>
-          <section>
-            <h2>What I built</h2>
-            <ul>
-              <li>B-end API platform — endpoints, throttling, developer-key surface.</li>
-              <li>C-end push channel and web rendering pipeline.</li>
-              <li>Sample apps and demo gallery for the open platform.</li>
-            </ul>
-          </section>
-          <section>
-            <h2>Note on this page</h2>
-            <p>
-              The shipped product is itself the demo — see the links above. The
-              cover graphic shows the developer-experience surface: a few lines
-              of JS to instantiate a map.
-            </p>
-          </section>
-        </>
-      );
-    default:
-      return null;
-  }
+  const note = notes[slug];
+  if (!note) return null;
+  return (
+    <>
+      <section>
+        <h2>Engineering focus</h2>
+        <p>{note.focus}</p>
+      </section>
+      <section>
+        <h2>Technical approach</h2>
+        <ul>
+          {note.techniques.map((t) => (
+            <li key={t}>{t}</li>
+          ))}
+        </ul>
+      </section>
+      <p className="privacy-note">
+        An anonymized technical study based on engineering experience.
+        Demonstrations use synthetic data or public map services. Product
+        references identify technologies, not employment or ownership.
+      </p>
+    </>
+  );
 }

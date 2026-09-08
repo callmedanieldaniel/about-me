@@ -20,7 +20,7 @@ export default function CardCover({ kind }: { kind: Project["cover"] }) {
 function Frame({ children }: { children: React.ReactNode }) {
   return (
     <svg viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice" width="100%" height="100%">
-      <rect x="0" y="0" width="320" height="180" fill="#0a0a10" />
+      <rect x="0" y="0" width="320" height="180" fill="#14211b" />
       {children}
     </svg>
   );
@@ -43,17 +43,17 @@ function AdCover() {
       const x = 160 + Math.cos(a) * rad;
       const y = 90 + Math.sin(a) * rad * 0.5;
       const o = 0.3 + (r / 6) * 0.7;
-      const c = r < 2 ? "#79ffe1" : r < 4 ? "#ff7eb6" : "#f0c83c";
+      const c = r < 2 ? "#b4f5d2" : r < 4 ? "#ecb59c" : "#f0c83c";
       dots.push(<circle key={`${r}-${i}`} cx={x} cy={y} r={1} fill={c} opacity={o} />);
     }
   }
   return (
     <Frame>
       <Grid />
-      <rect x={148} y={82} width={24} height={16} fill="none" stroke="#79ffe1" strokeWidth={1} />
+      <rect x={148} y={82} width={24} height={16} fill="none" stroke="#b4f5d2" strokeWidth={1} />
       {dots}
-      <rect x={70} y={50} width={26} height={20} fill="none" stroke="#ff7eb6" strokeWidth={1} />
-      <rect x={220} y={120} width={26} height={20} fill="none" stroke="#ff7eb6" strokeWidth={1} />
+      <rect x={70} y={50} width={26} height={20} fill="none" stroke="#ecb59c" strokeWidth={1} />
+      <rect x={220} y={120} width={26} height={20} fill="none" stroke="#ecb59c" strokeWidth={1} />
     </Frame>
   );
 }
@@ -82,8 +82,8 @@ function LocaCover() {
     const row = Math.floor(i / 6);
     const x = 60 + col * 36;
     const y = 60 + row * 22;
-    const h = 10 + Math.random() * 60;
-    const c = h > 50 ? "#ff7eb6" : h > 30 ? "#f0c83c" : "#79ffe1";
+    const h = 10 + ((i * 37 + 11) % 61);
+    const c = h > 50 ? "#ecb59c" : h > 30 ? "#f0c83c" : "#b4f5d2";
     boxes.push(
       <g key={i} transform={`translate(${x}, ${y - h})`}>
         <rect x={0} y={0} width={28} height={h + 12} fill={c} opacity="0.85" />
@@ -102,12 +102,12 @@ function TruckCover() {
       <rect x={70} y={40} width={50} height={30} fill="rgba(255,90,80,0.15)" stroke="#ff5a50" strokeDasharray="4 3" />
       <text x={75} y={56} fontFamily="ui-monospace" fontSize="8" fill="#ff5a50">RESTRICTED</text>
       <polyline points="30,140 60,120 100,110 140,90 180,80 220,60 260,50 290,40"
-        fill="none" stroke="#79ffe1" strokeWidth={3} strokeLinejoin="round" strokeLinecap="round" />
-      <circle cx={30} cy={140} r={5} fill="#ff7eb6" />
-      <circle cx={290} cy={40} r={5} fill="#ff7eb6" />
+        fill="none" stroke="#b4f5d2" strokeWidth={3} strokeLinejoin="round" strokeLinecap="round" />
+      <circle cx={30} cy={140} r={5} fill="#ecb59c" />
+      <circle cx={290} cy={40} r={5} fill="#ecb59c" />
       <g transform="translate(160, 86) rotate(-12)">
         <rect x={-10} y={-5} width={20} height={10} fill="#fff" />
-        <rect x={8} y={-4} width={3} height={8} fill="#ff7eb6" />
+        <rect x={8} y={-4} width={3} height={8} fill="#ecb59c" />
       </g>
     </Frame>
   );
@@ -128,12 +128,12 @@ function QianxiCover() {
         const cx = (x1 + x2) / 2 - (y2 - y1) * 0.3;
         const cy = (y1 + y2) / 2 + (x2 - x1) * 0.3;
         return <path key={i} d={`M${x1},${y1} Q${cx},${cy} ${x2},${y2}`}
-          fill="none" stroke="#ff7eb6" strokeWidth={1} opacity={0.6} />;
+          fill="none" stroke="#ecb59c" strokeWidth={1} opacity={0.6} />;
       })}
       {cities.map(([x, y, r], i) => (
         <g key={i}>
-          <circle cx={x} cy={y} r={r * 2} fill="#79ffe1" opacity="0.2" />
-          <circle cx={x} cy={y} r={r} fill="#79ffe1" />
+          <circle cx={x} cy={y} r={r * 2} fill="#b4f5d2" opacity="0.2" />
+          <circle cx={x} cy={y} r={r} fill="#b4f5d2" />
         </g>
       ))}
     </Frame>
@@ -152,12 +152,12 @@ function JiaotongCover() {
         const y1 = 90 + Math.sin(a) * 60;
         const x2 = 160 + Math.cos(a) * 95;
         const y2 = 90 + Math.sin(a) * 95;
-        const c = i % 3 === 0 ? "#ff5a50" : i % 3 === 1 ? "#f0c83c" : "#79ffe1";
+        const c = i % 3 === 0 ? "#ff5a50" : i % 3 === 1 ? "#f0c83c" : "#b4f5d2";
         return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke={c} strokeWidth={3} />;
       })}
-      <line x1={120} y1={90} x2={200} y2={90} stroke="#79ffe1" strokeWidth={3} />
+      <line x1={120} y1={90} x2={200} y2={90} stroke="#b4f5d2" strokeWidth={3} />
       <line x1={160} y1={60} x2={160} y2={120} stroke="#f0c83c" strokeWidth={3} />
-      <circle cx={160} cy={90} r={5} fill="#ff7eb6" />
+      <circle cx={160} cy={90} r={5} fill="#ecb59c" />
     </Frame>
   );
 }
@@ -177,7 +177,7 @@ function RenqiCover() {
         [100, 60, 12], [200, 110, 14], [220, 60, 10], [110, 130, 11], [70, 90, 8],
       ].map(([x, y, r], i) => (
         <circle key={i} cx={x} cy={y} r={r}
-          fill="#ff7eb6" opacity={0.5} />
+          fill="#ecb59c" opacity={0.5} />
       ))}
       <circle cx={160} cy={90} r={5} fill="#fff" />
     </Frame>
@@ -192,12 +192,12 @@ function MapvProCover() {
       <rect x={190} y={66} width={120} height={48} fill="none" stroke="rgba(255,126,182,0.3)" />
       <rect x={190} y={122} width={120} height={48} fill="none" stroke="rgba(255,126,182,0.3)" />
       <polyline points="200,55 215,40 230,50 245,30 260,38 275,28 290,35 305,25"
-        fill="none" stroke="#79ffe1" strokeWidth={1.5} />
+        fill="none" stroke="#b4f5d2" strokeWidth={1.5} />
       {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
         <rect key={i} x={196 + i * 14} y={130 + (8 - i) * 4} width={10} height={(i) * 4 + 5}
-          fill="#ff7eb6" opacity={0.7} />
+          fill="#ecb59c" opacity={0.7} />
       ))}
-      <g fill="#79ffe1">
+      <g fill="#b4f5d2">
         <circle cx={60} cy={60} r={3} /><circle cx={120} cy={50} r={3} />
         <circle cx={80} cy={120} r={3} /><circle cx={140} cy={130} r={3} />
         <circle cx={40} cy={100} r={3} /><circle cx={160} cy={90} r={3} />
@@ -221,7 +221,7 @@ function AmapSdkCover() {
       {/* markers */}
       {[[100, 70], [220, 70], [100, 120], [220, 120]].map(([x, y], i) => (
         <g key={i}>
-          <circle cx={x} cy={y} r={6} fill="#ff7eb6" stroke="#fff" strokeWidth={1.5} />
+          <circle cx={x} cy={y} r={6} fill="#ecb59c" stroke="#fff" strokeWidth={1.5} />
         </g>
       ))}
     </Frame>
@@ -242,7 +242,7 @@ function L7Cover() {
       const dist = Math.hypot(x - 160, y - 90);
       const t = Math.max(0, 1 - dist / 130);
       if (t < 0.05) continue;
-      const c = t > 0.7 ? "#ff7eb6" : t > 0.4 ? "#f0c83c" : "#79ffe1";
+      const c = t > 0.7 ? "#ecb59c" : t > 0.4 ? "#f0c83c" : "#b4f5d2";
       hexes.push(
         <polygon
           key={`${row}-${col}`}
@@ -267,13 +267,13 @@ function BaiduSdkCover() {
       ].map((line, i) => (
         <text key={i} x={28} y={50 + i * 14}
           fontFamily="ui-monospace" fontSize="9"
-          fill={i === 0 ? "#ff7eb6" : i % 2 ? "#79ffe1" : "rgba(255,255,255,0.7)"}>
+          fill={i === 0 ? "#ecb59c" : i % 2 ? "#b4f5d2" : "rgba(255,255,255,0.7)"}>
           {line}
         </text>
       ))}
       {/* map preview */}
       <rect x={210} y={30} width={90} height={120} fill="rgba(255,255,255,0.04)" stroke="rgba(121,255,225,0.3)" />
-      <circle cx={255} cy={90} r={6} fill="#ff7eb6" />
+      <circle cx={255} cy={90} r={6} fill="#ecb59c" />
       <line x1={220} y1={70} x2={290} y2={70} stroke="rgba(120,120,150,0.7)" strokeWidth={2} />
       <line x1={220} y1={120} x2={290} y2={120} stroke="rgba(120,120,150,0.7)" strokeWidth={2} />
       <line x1={240} y1={40} x2={240} y2={150} stroke="rgba(120,120,150,0.7)" strokeWidth={2} />

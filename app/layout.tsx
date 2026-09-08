@@ -1,39 +1,19 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono, Crimson_Pro } from "next/font/google";
 import "./globals.css";
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-sans",
-  display: "swap",
-});
-
-const mono = JetBrains_Mono({
-  subsets: ["latin"],
-  variable: "--font-mono",
-  display: "swap",
-});
-
-const serif = Crimson_Pro({
-  subsets: ["latin"],
-  variable: "--font-serif",
-  display: "swap",
-});
-
 export const metadata: Metadata = {
-  title: "ZIV — Visualization Engineer",
+  title: {
+    default: "Fieldwork — Spatial & Systems Engineering",
+    template: "%s — Fieldwork",
+  },
   description:
-    "Frontend visualization engineer. Map SDKs, 3D scene tooling, real-time data viz at Baidu, Alibaba, NIO, DiDi.",
+    "An anonymous engineering portfolio exploring 3D visualization, spatial data, autonomous systems, real-time streaming, and cross-platform tools.",
+  referrer: "no-referrer",
 };
-
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html
-      lang="en"
-      className={`${inter.variable} ${mono.variable} ${serif.variable}`}
-    >
+    <html lang="en">
       <body>{children}</body>
     </html>
   );

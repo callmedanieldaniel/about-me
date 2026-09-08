@@ -1,8 +1,8 @@
 // Browser-side script loaders for external map SDKs.
-// API keys are hard-coded by request.
+// Optional public browser keys are supplied by the deployment environment.
 
-export const AMAP_KEY = "5262c380bbb96c1812c190b6c3e6635f";
-export const BAIDU_KEY = "8NctrWQ2YS7panWNLjUQYhfUzgNd4Fun";
+export const AMAP_KEY = process.env.NEXT_PUBLIC_AMAP_KEY || "";
+export const BAIDU_KEY = process.env.NEXT_PUBLIC_BAIDU_KEY || "";
 
 const scriptCache: Record<string, Promise<void>> = {};
 
@@ -13,13 +13,15 @@ export function loadScript(src: string): Promise<void> {
 
   scriptCache[src] = new Promise((resolve, reject) => {
     const existing = document.querySelector(
-      `script[src="${src}"]`
+      `script[src="${src}"]`,
     ) as HTMLScriptElement | null;
     if (existing) {
       if (existing.dataset.loaded === "1") resolve();
       else {
         existing.addEventListener("load", () => resolve());
-        existing.addEventListener("error", () => reject(new Error("load fail")));
+        existing.addEventListener("error", () =>
+          reject(new Error("load fail")),
+        );
       }
       return;
     }
@@ -42,6 +44,7 @@ let amapPromise: Promise<unknown> | null = null;
 
 export async function loadAMap(plugins: string[] = []): Promise<unknown> {
   if (typeof window === "undefined") throw new Error("SSR");
+  if (!AMAP_KEY) throw new Error("Map provider is not configured");
   if (amapPromise) return amapPromise;
 
   // AMap v2 advises a security config global; harmless if unused.
@@ -70,8 +73,8 @@ export async function loadLoca(): Promise<unknown> {
   if (locaPromise) return locaPromise;
   await loadAMap([]);
   locaPromise = loadScript(
-    `https://webapi.amap.com/loca?v=2.0.0&key=${AMAP_KEY}`
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    `https://webapi.amap.com/loca?v=2.0.0&key=${AMAP_KEY}`,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ).then(() => (window as any).Loca);
   return locaPromise;
 }
@@ -84,6 +87,7 @@ export async function loadBMap(): Promise<unknown> {
   if (typeof window === "undefined") throw new Error("SSR");
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const w = window as any;
+  if (!BAIDU_KEY) throw new Error("Map provider is not configured");
   if (w.BMapGL) return w.BMapGL;
   if (bmapPromise) return bmapPromise;
 
