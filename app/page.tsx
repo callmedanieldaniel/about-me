@@ -1,139 +1,81 @@
 import Link from "next/link";
-import { projects } from "./projects/data";
-import CardCover from "./components/CardCover";
-import ScenePlayground from "./components/ScenePlayground";
-
+import SceneCatalog from "./platform/SceneCatalog";
+import { labs } from "./platform/catalog";
 export default function Home() {
   return (
-    <main className="shell">
-      <header className="nav">
-        <a className="brand" href="#" aria-label="Spatial engineering home">
-          <span className="brand-symbol">✳</span> FIELDWORK
-          <span className="brand-suffix"> / ENGINEERING</span>
-        </a>
-        <nav aria-label="Main navigation">
-          <a href="#work">Selected work</a>
-          <a href="#practice">Practice</a>
-          <span className="edition">PORTFOLIO / 01</span>
+    <main className="platform-shell">
+      <header className="platform-nav">
+        <Link className="platform-brand" href="/">
+          <span aria-hidden="true">✳</span> FIELDWORK{" "}
+          <small>VISUAL SYSTEMS</small>
+        </Link>
+        <nav aria-label="主导航">
+          <a href="#scenes">场景库</a>
+          <Link href="/labs/braking">实验室</Link>
+          <Link href="/methodology">方法与边界</Link>
         </nav>
       </header>
-      <section className="hero" aria-labelledby="intro-title">
-        <div className="hero-copy">
-          <p className="eyebrow">CREATIVE ENGINEERING · SPATIAL SYSTEMS</p>
-          <h1 id="intro-title">
-            Making
+      <section className="platform-intro">
+        <div>
+          <p className="eyebrow">OBSERVE / UNDERSTAND / EXPERIMENT</p>
+          <h1>
+            让复杂系统，
             <br />
-            complexity
-            <br />
-            <em>visible.</em>
+            <em>变得可理解。</em>
           </h1>
-          <p className="sub">
-            From a single pixel to a world of data.
-            <br />I build interactive tools for spatial computing,
-            <br className="desktop-break" /> autonomous systems, and AI.
+          <p>
+            回放真实数据，检查空间结构，比较算法与仿真结果。
+            <br />
+            从自动驾驶和机器人，到 AI、数字孪生与金融分析。
           </p>
-          <a className="work-link" href="#work">
-            Explore the work <span aria-hidden="true">↗</span>
-          </a>
         </div>
-        <ScenePlayground />
-      </section>
-      <div className="discipline-strip">
-        <span>01 / GEOSPATIAL</span>
-        <span>02 / PERCEPTION</span>
-        <span>03 / REAL-TIME SYSTEMS</span>
-        <span>04 / CROSS-PLATFORM</span>
-      </div>
-      <section className="section" id="work">
-        <div className="section-head">
+        <div className="platform-principle">
+          <span>VISUALIZE → INVESTIGATE → VERIFY</span>
+          <p>每个场景，都应回答一个问题。</p>
           <div>
-            <p className="eyebrow">A SELECTION OF TECHNICAL EXPLORATIONS</p>
-            <h2>Systems you can see.</h2>
+            <b>可操作</b>
+            <b>可追溯</b>
+            <b>可复现</b>
           </div>
-          <span className="count">
-            {String(projects.length).padStart(2, "0")} studies / interactive
-            demos
-          </span>
         </div>
-        <div className="cards">
-          {projects.map((p, i) => (
-            <Link key={p.slug} className="card" href={`/projects/${p.slug}`}>
-              <div className="cover">
-                <CardCover kind={p.cover} />
-                <span className="cover-index">
-                  STUDY {String(i + 1).padStart(2, "0")}
-                </span>
-                <span className="cover-open" aria-hidden="true">
-                  ↗
-                </span>
+      </section>
+      <section className="launch-section" aria-labelledby="launch-title">
+        <div className="launch-heading">
+          <h2 id="launch-title">直接开始实验</h2>
+          <span>无需注册 · 浏览器本地运行</span>
+        </div>
+        <div className="launch-grid">
+          {labs.map((s, i) => (
+            <Link
+              className={`launch-card launch-${s.lab}`}
+              href={`/labs/${s.lab}`}
+              key={s.id}
+            >
+              <span className="launch-number">0{i + 1}</span>
+              <div>
+                <small>{s.domain}</small>
+                <h3>{s.title}</h3>
+                <p>{s.engine}</p>
               </div>
-              <div className="meta">
-                <span className="project-category">{p.org}</span>
-                <h3>{p.title}</h3>
-                <p>{p.tagline}</p>
-                <div className="tag-row">
-                  {p.tags.slice(0, 4).map((t) => (
-                    <span key={t}>{t}</span>
-                  ))}
-                </div>
-              </div>
+              <span className="launch-arrow" aria-hidden="true">
+                ↗
+              </span>
             </Link>
           ))}
         </div>
       </section>
-      <section id="practice" className="practice section">
-        <div>
-          <p className="eyebrow">THE PRACTICE</p>
-          <h2>
-            Across the stack.
-            <br />
-            <em>Close to the pixels.</em>
-          </h2>
-          <p>
-            My work connects rendering engines, data pipelines, and the
-            interfaces people use to understand them.
-          </p>
-        </div>
-        <div className="practice-list">
-          <article>
-            <span>01</span>
-            <div>
-              <h3>Spatial & visual computing</h3>
-              <p>
-                3D scene playback, point clouds, map editing, and multi-sensor
-                visualization.
-              </p>
-              <small>Three.js / WebGL / Canvas / GIS</small>
-            </div>
-          </article>
-          <article>
-            <span>02</span>
-            <div>
-              <h3>Real-time & AI systems</h3>
-              <p>
-                Streaming interfaces, AI-assisted analysis, data workflows, and
-                backend services.
-              </p>
-              <small>Node.js / Python / Go / SSE / gRPC</small>
-            </div>
-          </article>
-          <article>
-            <span>03</span>
-            <div>
-              <h3>Interfaces & engineering</h3>
-              <p>
-                Cross-platform applications, reusable SDKs, rendering
-                architecture, and developer tools.
-              </p>
-              <small>React / React Native / TypeScript / Monorepo</small>
-            </div>
-          </article>
-        </div>
+      <SceneCatalog />
+      <section className="platform-bottom">
+        <h2>看到变化，也能解释变化。</h2>
+        <p>
+          数据来源、计算假设、交互参数和输出结果应同时可见。模拟数据会明确标注；引擎演示与平台已集成能力分别展示。
+        </p>
+        <Link href="/methodology">了解数据与仿真边界 ↗</Link>
       </section>
-      <footer className="foot">
-        <span>FIELDWORK / AN ENGINEERING PORTFOLIO</span>
-        <span>Technical work, without the personal details.</span>
-        <a href="#">Back to top ↑</a>
+      <footer className="platform-footer">
+        <span>FIELDWORK / VISUAL SYSTEMS</span>
+        <Link href="/examples">地图与空间示例</Link>
+        <span>Explore systems. Find evidence.</span>
       </footer>
     </main>
   );

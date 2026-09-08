@@ -203,7 +203,7 @@ export default async function ProjectPage({
 
       <footer className="foot">
         <Link href="/">← all work</Link>
-        <span>FIELDWORK / ENGINEERING STUDIES</span>
+        <span>FIELDWORK / VISUAL SYSTEMS</span>
       </footer>
     </div>
   );
@@ -318,7 +318,7 @@ function ProjectBody({ slug }: { slug: string }) {
         </ul>
       </section>
       <p className="privacy-note">
-        An anonymized technical study based on engineering experience.
+        A spatial visualization study.
         Demonstrations use synthetic data or public map services. Product
         references identify technologies, not employment or ownership.
       </p>

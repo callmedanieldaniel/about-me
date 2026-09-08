@@ -1,6 +1,6 @@
-# Fieldwork — an anonymous engineering portfolio
+# Fieldwork — Visual Systems
 
-An interactive portfolio for spatial visualization, perception tooling, real-time systems, and cross-platform engineering. Built with the repository's existing Next.js, React, TypeScript, and Three.js stack.
+A platform for understanding complex systems through interactive visualization, local experiments and traceable evidence. Focus areas are autonomous driving, robotics/ROS, simulation, 3D assets/digital twins, AI, and analytical tools. There is no personal profile or employment history.
 
 ## Run
 
@@ -14,33 +14,38 @@ npm run build
 npm start
 ```
 
-The root page includes three deterministic 3D studies: a sampled spatial terrain, synthetic LiDAR rings with object bounds, and orbital system paths. Switch studies to morph between their geometries. Drag to orbit, pinch to zoom, or focus the canvas and use arrow keys and `+` / `-`. Pause stops automatic motion; Reset view restores the camera and scene orientation. Reduced-motion preferences disable autoplay and morph transitions. The renderer caps resolution and mobile particle count, suspends drawing offscreen and in background tabs, disposes GPU resources, and provides a retryable WebGL fallback.
+## Available now
 
-Existing project URLs remain available. Without map configuration, project pages present a clearly labeled local synthetic 3D study. Existing third-party map demonstrations remain available when their corresponding browser keys are provided at build time:
+- Search/filter a catalog of 24 scenarios across six domains. Native tools and third-party engine references are clearly distinguished.
+- **Braking:** compare reaction delays with an explicit analytic model, replay the result and export JSON.
+- **Robot:** solve two-link planar FK/IK and inspect endpoint error and reachability.
+- **Physics:** run a real Rapier WASM rigid-body experiment with adjustable gravity, drop height and restitution.
+- **Model:** inspect local self-contained GLB files using Three.js, including mesh names, original bounds, wireframe and the first animation. Files are not uploaded. Maximum 30 MB; no external resources or separate compression decoder support.
 
-```text
-NEXT_PUBLIC_AMAP_KEY=
-NEXT_PUBLIC_BAIDU_KEY=
-```
+Native routes: `/labs/braking`, `/labs/robot`, `/labs/physics`, `/labs/model`.
 
-These are public browser SDK keys, not server secrets. Configure provider restrictions for the deployment domain. No external map requests are made by the default local 3D studies. No remote fonts are required.
+The catalog's remaining entries link to real official engines or demos, with intended inputs and outputs. They are not presented as integrated features. The roadmap does not imply that private datasets, GPU services or external applications have been imported.
 
-## Content and privacy
+## Research and implementation plan
 
-- `app/projects/data.ts`: anonymous project titles, technical categories, and library references.
-- `app/projects/[slug]/page.tsx`: study descriptions and optional map demonstrations.
-- `app/lib/particle-fields.ts`: deterministic synthetic geometry.
-- `app/components/SceneCanvas.tsx`: renderer and accessible interaction.
+- [Research, 24 scenarios, demand hypotheses, source links and additional opportunities](docs/PLATFORM_RESEARCH.zh-CN.md)
+- [Platform architecture, data contracts, integration sequence and acceptance gates](docs/PLATFORM_PLAN.zh-CN.md)
+- [Exact implementation status and verification limits](docs/IMPLEMENTATION_STATUS.md)
 
-The current source removes personal branding, email, personal profile links, employer attribution, employment dates, and embedded provider keys. No private resume files are included. Technical references to public SDKs are retained and do not claim employment, ownership, or sole authorship. Public repository ownership, previous Git history, and existing deployment caches are outside page-level anonymization; this change does not rewrite Git history or change repository settings. Previously committed provider keys should be rotated separately.
-
-The displayed geometry is illustrative, not a real sensor recording, geographic dataset, system topology, or performance benchmark. No unsupported performance metrics are presented as career achievements.
-
-## Verification
+## Validation
 
 ```sh
 node scripts/verify.mjs
+node scripts/verify-platform.mjs
 npm run build
 ```
 
-The verification script checks deterministic finite geometry, preserved project routes, and personal identifiers / embedded credentials in current source. The production build checks TypeScript and prerenders all project pages. Browser/device visual testing is a separate manual check.
+## Existing examples
+
+The original 11 project URLs remain available via `/examples`. Optional map SDK examples use build-time public browser keys `NEXT_PUBLIC_AMAP_KEY` and `NEXT_PUBLIC_BAIDU_KEY`; no keys are committed. When not configured, those legacy pages show explicitly labeled synthetic studies. The new labs do not need those services or credentials.
+
+## Data and attribution
+
+Inputs/results distinguish synthetic, generated and recorded data. Native experiments state their assumptions. Rendering is not a claim of physical fidelity, safety validation, clinical diagnosis or financial returns. The model viewer does not include branded vehicle assets. Official library links identify third-party technology, not authorship of this platform. Respect every engine, dataset and asset license individually.
+
+Current source contains no personal branding, contacts or credentials. Repository ownership, previous Git history and old deployment caches are outside page-level anonymity; history is not rewritten. Local filenames and model node names shown during imports are user-provided and are not published or persisted by this platform.
