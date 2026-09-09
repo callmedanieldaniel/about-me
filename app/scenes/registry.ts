@@ -3,8 +3,9 @@ import { driving } from "./domains/driving";
 import { annotation } from "./domains/annotation";
 import { triage } from "./domains/triage";
 import { embodied } from "./domains/embodied";
+import { geo } from "./domains/geo";
 
-export const scenes: SceneDef[] = [...driving, ...triage, ...annotation, ...embodied];
+export const scenes: SceneDef[] = [...driving, ...triage, ...geo, ...embodied, ...annotation];
 
 export const sceneOf = (id: string) => scenes.find((s) => s.id === id);
 export const scenesIn = (domain: string) => scenes.filter((s) => s.domain === domain);
