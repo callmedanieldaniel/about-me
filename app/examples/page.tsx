@@ -1,17 +1,17 @@
 import Link from "next/link";
 import { projects } from "../projects/data";
 import CardCover from "../components/CardCover";
-export const metadata = { title: "地图与空间示例" };
+export const metadata = { title: "Geospatial archive" };
 export default function Examples() {
   return (
     <main className="shell project-page">
       <Link className="back" href="/">
-        ← 返回平台
+        ← Back to platform
       </Link>
       <header>
-        <h1>地图与空间示例</h1>
+        <h1>Geospatial archive</h1>
         <p className="lede">
-          已有图层和地图实验。未配置地图服务时会显示明确标注的合成 3D 示例。
+          Earlier map-layer studies kept for reference. Without map service keys configured, each page shows a clearly labeled synthetic 3D study instead.
         </p>
       </header>
       <div className="cards">

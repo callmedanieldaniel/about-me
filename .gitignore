@@ -10,3 +10,4 @@ output/
 .DS_Store
 .env*
 .vercel
+tsconfig.tsbuildinfo

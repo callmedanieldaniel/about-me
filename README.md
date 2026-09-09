@@ -1,51 +1,60 @@
-# Fieldwork — Visual Systems
+# OMNIVIS — Visualize everything
 
-A platform for understanding complex systems through interactive visualization, local experiments and traceable evidence. Focus areas are autonomous driving, robotics/ROS, simulation, 3D assets/digital twins, AI, and analytical tools. There is no personal profile or employment history.
+An open visualization platform: interactive labs for autonomous driving, embodied AI, simulation and world models, 3D digital twins, AI systems, markets, science and infrastructure. Each scene answers one question, runs in the browser, shows its assumptions and exports its evidence.
+
+There is no personal profile, employer attribution or contact information in this repository. The platform is judged on its scenes.
 
 ## Run
 
 ```sh
 npm ci
-npm run dev
+npm run dev      # http://localhost:3000
+npm run build && npm start
 ```
+
+## Native labs (`/labs/<id>`)
+
+| Lab | Domain | Engine |
+| --- | --- | --- |
+| `lidar` | Driving | Ray-cast LiDAR sweep, ground segmentation, 3D boxes, BEV occupancy inset |
+| `planner` | Driving | Frenet lattice trajectory sampling with collision/jerk/deviation cost, cut-in scenario |
+| `braking` | Driving | Analytic braking distance, two reaction delays side by side |
+| `arm` | Robotics | Two-link inverse kinematics, reachable annulus, servoed joints |
+| `gait` | Robotics | Kinematic humanoid gait, center of mass, support phase, joint plots |
+| `swarm` | Robotics | 800-agent boids with spatial hash and obstacle field |
+| `physics` | Simulation | Rapier WASM rigid bodies at a fixed 1/60 s step |
+| `model` | 3D | Local GLB inspection: node tree, bounds, animation, wireframe, explode |
+| `attention` | AI | Toy multi-head transformer attention with arcs and matrix |
+| `orderbook` | Markets | Zero-intelligence limit order book with depth, trades and sweeps |
+
+Keyboard: `space` play/pause, `r` restart. Every lab exports a JSON run with parameters, telemetry and assumptions.
+
+## Catalog
+
+`/#catalog` lists 46 scenes across 8 domains. Each entry states the question, inputs, outputs, the real engine that answers it (Foxglove, Rerun, CARLA, Isaac Sim, MuJoCo, Genesis, Cosmos, Spark, Cesium, deck.gl, Mol*, …) and its status: native lab, engine integration, or planned.
+
+- [Research: value map, engine landscape, opportunities](docs/RESEARCH.md)
+- [Roadmap: architecture, data contracts, phases, acceptance gates](docs/ROADMAP.md)
+- `/stack` and `/methodology` in the app describe the build and the rules.
+
+## Validate
 
 ```sh
-npm run build
-npm start
-```
-
-## Available now
-
-- Search/filter a catalog of 24 scenarios across six domains. Native tools and third-party engine references are clearly distinguished.
-- **Braking:** compare reaction delays with an explicit analytic model, replay the result and export JSON.
-- **Robot:** solve two-link planar FK/IK and inspect endpoint error and reachability.
-- **Physics:** run a real Rapier WASM rigid-body experiment with adjustable gravity, drop height and restitution.
-- **Model:** inspect local self-contained GLB files using Three.js, including mesh names, original bounds, wireframe and the first animation. Files are not uploaded. Maximum 30 MB; no external resources or separate compression decoder support.
-
-Native routes: `/labs/braking`, `/labs/robot`, `/labs/physics`, `/labs/model`.
-
-The catalog's remaining entries link to real official engines or demos, with intended inputs and outputs. They are not presented as integrated features. The roadmap does not imply that private datasets, GPU services or external applications have been imported.
-
-## Research and implementation plan
-
-- [Research, 24 scenarios, demand hypotheses, source links and additional opportunities](docs/PLATFORM_RESEARCH.zh-CN.md)
-- [Platform architecture, data contracts, integration sequence and acceptance gates](docs/PLATFORM_PLAN.zh-CN.md)
-- [Exact implementation status and verification limits](docs/IMPLEMENTATION_STATUS.md)
-
-## Validation
-
-```sh
-node scripts/verify.mjs
-node scripts/verify-platform.mjs
+node scripts/verify.mjs            # legacy geometry fixtures + privacy scan
+node scripts/verify-platform.mjs   # catalog/registry integrity + privacy scan
 npm run build
 ```
 
-## Existing examples
+## Adding a scene
 
-The original 11 project URLs remain available via `/examples`. Optional map SDK examples use build-time public browser keys `NEXT_PUBLIC_AMAP_KEY` and `NEXT_PUBLIC_BAIDU_KEY`; no keys are committed. When not configured, those legacy pages show explicitly labeled synthetic studies. The new labs do not need those services or credentials.
+1. Add a record to `app/catalog/data.ts` (status `lab` with a `lab` id, or `engine` / `planned`).
+2. For a native lab, add a `LabDef` in `app/labs/registry.ts` and an engine in `app/labs/engines/` that implements `EngineProps` from `app/labs/types.ts`.
+3. Run the verification scripts.
+
+## Geospatial archive
+
+Earlier map-layer studies remain at `/examples`. Optional map SDK keys `NEXT_PUBLIC_AMAP_KEY` / `NEXT_PUBLIC_BAIDU_KEY` are read at build time; none are committed. Without keys those pages show clearly labeled synthetic studies.
 
 ## Data and attribution
 
-Inputs/results distinguish synthetic, generated and recorded data. Native experiments state their assumptions. Rendering is not a claim of physical fidelity, safety validation, clinical diagnosis or financial returns. The model viewer does not include branded vehicle assets. Official library links identify third-party technology, not authorship of this platform. Respect every engine, dataset and asset license individually.
-
-Current source contains no personal branding, contacts or credentials. Repository ownership, previous Git history and old deployment caches are outside page-level anonymity; history is not rewritten. Local filenames and model node names shown during imports are user-provided and are not published or persisted by this platform.
+Synthetic data is labeled synthetic. Rendering is not a claim of physical fidelity, safety validation, clinical accuracy or financial return. Engine links credit third-party technology; they do not claim it as this platform's work. Respect each engine's, dataset's and asset's license. Files opened in the model viewer stay on the device.

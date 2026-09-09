@@ -1,19 +1,45 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
+
 export const metadata: Metadata = {
   title: {
-    default: "Fieldwork — 可视化分析与仿真实验平台",
-    template: "%s — Fieldwork",
+    default: "OMNIVIS — Visualize everything",
+    template: "%s — OMNIVIS",
   },
   description:
-    "探索自动驾驶、机器人、ROS、AI、3D 数字孪生与金融分析。以可操作、可追溯、可复现的工具理解复杂系统。",
+    "An open visualization platform for autonomous driving, embodied AI, simulation, world models, 3D digital twins, AI systems and markets. Interactive labs that run in your browser, backed by real engines.",
   referrer: "no-referrer",
+  openGraph: {
+    title: "OMNIVIS — Visualize everything",
+    description:
+      "Interactive labs for autonomous driving, robotics, simulation, 3D and AI systems. Runs locally in the browser.",
+    type: "website",
+  },
 };
+
+export const viewport: Viewport = {
+  themeColor: "#070b12",
+  width: "device-width",
+  initialScale: 1,
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="zh-CN">
+    <html lang="en">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
+          rel="stylesheet"
+        />
+      </head>
       <body>{children}</body>
     </html>
   );
