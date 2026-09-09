@@ -2,8 +2,9 @@ import type { SceneDef } from "./types";
 import { driving } from "./domains/driving";
 import { annotation } from "./domains/annotation";
 import { triage } from "./domains/triage";
+import { embodied } from "./domains/embodied";
 
-export const scenes: SceneDef[] = [...driving, ...triage, ...annotation];
+export const scenes: SceneDef[] = [...driving, ...triage, ...annotation, ...embodied];
 
 export const sceneOf = (id: string) => scenes.find((s) => s.id === id);
 export const scenesIn = (domain: string) => scenes.filter((s) => s.domain === domain);
