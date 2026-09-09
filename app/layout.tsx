@@ -1,4 +1,6 @@
 import type { Metadata, Viewport } from "next";
+import "maplibre-gl/dist/maplibre-gl.css";
+import "mapbox-gl/dist/mapbox-gl.css";
 import "./globals.css";
 import Nav from "./components/Nav";
 import Footer from "./components/Footer";
