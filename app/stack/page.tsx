@@ -1,150 +1,67 @@
+import Link from "next/link";
+import { domains } from "../scenes/domains";
+import { scenes, scenesIn } from "../scenes/registry";
+import type { Lib } from "../scenes/types";
 
-export const metadata = { title: "Technology stack" };
-
-const layers = [
-  {
-    name: "Data",
-    now: "Typed parameter contracts per lab; synthetic generators seeded for reproducibility; local GLB import that never leaves the device.",
-    next: "MCAP/rosbag2 parsing in a Web Worker, LeRobot parquet episodes, Arrow tables for geospatial layers, 3D Tiles and .spz streaming.",
-  },
-  {
-    name: "Compute",
-    now: "Analytic kinematics, Frenet lattice planner, boids with spatial hash, zero-intelligence LOB, toy multi-head attention, Rapier WASM rigid bodies — all at fixed step in the main thread.",
-    next: "WebGPU compute for ray casting and Monte Carlo sweeps; server jobs for CARLA, Isaac Sim, SUMO and world-model rollouts with results streamed back as MCAP.",
-  },
-  {
-    name: "Render",
-    now: "Three.js WebGL stages with instancing, custom point shaders and canvas insets for BEV, plots and depth charts. Each lab owns its scene and disposes it.",
-    next: "WebGPU renderer with TSL, native Gaussian splat mesh, deck.gl layers on MapLibre, Cesium globe for city and orbit scenes.",
-  },
-  {
-    name: "Evidence",
-    now: "Live telemetry strip, stated assumptions, JSON export of parameters and outputs, keyboard transport (space, r).",
-    next: "Shareable run URLs, side-by-side run diff, bookmarks on a timeline, and provenance labels on every input.",
-  },
-];
-
-const engines: [string, string, string][] = [
-  ["Robotics data", "Foxglove SDK, Rerun, MCAP", "Multi-modal timeline replay, live WebSocket bridges, 3D panels"],
-  ["Simulation", "CARLA, SUMO, Isaac Sim/Lab, MuJoCo, Genesis, Rapier", "Closed-loop scenarios, traffic, GPU-parallel RL, contact physics"],
-  ["World models", "NVIDIA Cosmos, Wayve GAIA-2, OmniDreams", "Action-conditioned future generation for driving and manipulation"],
-  ["3D & neural rendering", "Three.js (WebGL/WebGPU), Spark 2.0, glTF, OpenUSD, 3D Tiles", "Assets, splats, scene composition, city-scale streaming"],
-  ["Geospatial", "deck.gl, MapLibre, CesiumJS, satellite.js", "Millions of points, arcs, hexbins, orbits, terrain"],
-  ["AI observability", "Netron, BertViz, Embedding Projector, Phoenix, uPlot", "Graphs, attention, embeddings, agent traces, training curves"],
-  ["Markets", "Lightweight Charts, Plotly.js, D3", "Candles, depth, surfaces, factor and flow diagrams"],
-  ["Science", "Mol*, VTK.js, Cornerstone3D, Z-Anatomy", "Molecules, volumes, anatomy layers"],
-];
+export const metadata = { title: "Stack", description: "How OMNIVIS is built: scene registry, engines, libraries, verification." };
 
 export default function Stack() {
+  const libs = new Map<string, Lib & { uses: number }>();
+  for (const s of scenes) for (const d of s.demos) for (const l of d.libs) { const e = libs.get(l.name); if (e) e.uses++; else libs.set(l.name, { ...l, uses: 1 }); }
+  const list = [...libs.values()].sort((a, b) => b.uses - a.uses);
+  const demoCount = scenes.reduce((n, s) => n + s.demos.length, 0);
   return (
     <main className="shell doc-page">
-      <header className="doc-head">
+      <header className="doc-head reveal">
+        <p className="eyebrow">Stack</p>
         <h1>How the platform is built</h1>
-        <p>
-          Every scene passes through four layers. The native labs implement all four in the browser; engine
-          integrations replace the compute layer with a real simulator, viewer or model and keep the rest.
-        </p>
+        <p>{scenes.length} scenes and {demoCount} demos share one shell. Every demo is a registry entry (typed controls, legend, assumptions, library credits) plus one engine component that runs in the browser. Nothing redirects; heavy engines load lazily.</p>
       </header>
 
-      <figure className="arch">
-        <svg viewBox="0 0 900 260" role="img" aria-label="Architecture: data, compute, render and evidence layers with browser and server split">
-          <defs>
-            <linearGradient id="g" x1="0" x2="1">
-              <stop offset="0" stopColor="#5ee7ff" stopOpacity="0.9" />
-              <stop offset="1" stopColor="#b99cff" stopOpacity="0.9" />
-            </linearGradient>
-          </defs>
-          <rect x="10" y="20" width="560" height="220" rx="10" fill="none" stroke="#1c2a3d" />
-          <text x="26" y="44" fill="#7e90a8" fontSize="12" fontFamily="'IBM Plex Mono', monospace">browser · local, no account</text>
-          <rect x="600" y="20" width="290" height="220" rx="10" fill="none" stroke="#1c2a3d" strokeDasharray="4 4" />
-          <text x="616" y="44" fill="#7e90a8" fontSize="12" fontFamily="'IBM Plex Mono', monospace">optional services</text>
-          {[
-            ["Data", "params · GLB · MCAP · Arrow", 30],
-            ["Compute", "planner · physics · LOB · attention", 165],
-            ["Render", "Three.js · canvas · deck.gl", 300],
-            ["Evidence", "telemetry · export · assumptions", 435],
-          ].map(([t, s, x]) => (
-            <g key={t as string} transform={`translate(${x}, 70)`}>
-              <rect width="120" height="120" rx="8" fill="#0d1420" stroke="url(#g)" />
-              <text x="12" y="30" fill="#e6eef8" fontSize="16" fontWeight="600" fontFamily="'Space Grotesk', sans-serif">{t}</text>
-              <foreignObject x="10" y="42" width="104" height="70">
-                <div style={{ color: "#7e90a8", fontSize: 11, lineHeight: 1.35, fontFamily: "'IBM Plex Mono', monospace" }}>{s}</div>
-              </foreignObject>
-            </g>
-          ))}
-          {[150, 285, 420].map((x) => (
-            <path key={x} d={`M${x} 130 h12`} stroke="#5ee7ff" strokeWidth="2" />
-          ))}
-          {[
-            ["Sim jobs", "CARLA · Isaac · SUMO", 620],
-            ["World models", "Cosmos · GAIA-2", 760],
-          ].map(([t, s, x]) => (
-            <g key={t as string} transform={`translate(${x}, 70)`}>
-              <rect width="120" height="60" rx="8" fill="#0d1420" stroke="#1c2a3d" />
-              <text x="12" y="24" fill="#e6eef8" fontSize="14" fontWeight="600" fontFamily="'Space Grotesk', sans-serif">{t}</text>
-              <text x="12" y="44" fill="#7e90a8" fontSize="11" fontFamily="'IBM Plex Mono', monospace">{s}</text>
-            </g>
-          ))}
-          <g transform="translate(620, 150)">
-            <rect width="260" height="40" rx="8" fill="#0d1420" stroke="#1c2a3d" />
-            <text x="12" y="25" fill="#7e90a8" fontSize="12" fontFamily="'IBM Plex Mono', monospace">results stream back as MCAP → Data layer</text>
-          </g>
-          <path d="M570 100 C 590 100, 590 100, 600 100" stroke="#ffb454" strokeWidth="1.5" fill="none" strokeDasharray="3 3" />
-          <path d="M600 170 C 590 170, 590 100, 570 100" stroke="#ffb454" strokeWidth="1.5" fill="none" strokeDasharray="3 3" />
-        </svg>
-        <figcaption>Native labs live entirely in the left box. Heavy simulators run as optional jobs and feed the same data layer.</figcaption>
-      </figure>
-
       <section className="layers">
-        {layers.map((l) => (
-          <article key={l.name}>
-            <h2>{l.name}</h2>
-            <h3>Implemented</h3>
-            <p>{l.now}</p>
-            <h3>Roadmap</h3>
-            <p>{l.next}</p>
-          </article>
+        {[
+          ["Routing", "app/[domain]/[scene] with ?demo= selection. Domain and scene pages are statically generated from the registry; the shell hydrates on the client."],
+          ["Shell", "SceneShell: demo tabs, transport (space / r), controls (range, toggle, select, text, file, action), telemetry strip, JSON export, key gating for map providers, Built-with panel."],
+          ["Engines", "One component per demo under app/scenes/engines/<domain>. Three.js stages via createStage, canvas plots via kit/plot, real engines (MuJoCo WASM, Rapier, deck.gl, MapLibre, Cesium, @mcap/core, urdf-loader) behind shared kits."],
+          ["Assets", "scripts/copy-assets.mjs copies MuJoCo and Cesium runtime files into public/vendor before dev/build; both are loaded at runtime to keep them out of the bundle."],
+        ].map(([t, s]) => (
+          <article key={t}><h2>{t}</h2><p>{s}</p></article>
         ))}
       </section>
 
       <section className="engine-table">
-        <h2>Engines by capability</h2>
+        <h2>Libraries and engines credited across demos</h2>
         <table>
-          <thead>
-            <tr>
-              <th>Capability</th>
-              <th>Engines</th>
-              <th>What they bring</th>
-            </tr>
-          </thead>
+          <thead><tr><th>Library</th><th>Version</th><th>Role</th><th>Demos</th></tr></thead>
           <tbody>
-            {engines.map(([a, b, c]) => (
-              <tr key={a}>
-                <td>{a}</td>
-                <td>{b}</td>
-                <td>{c}</td>
-              </tr>
+            {list.map((l) => (
+              <tr key={l.name}><td><a href={l.url} target="_blank" rel="noreferrer">{l.name}</a></td><td>{l.version ?? "—"}</td><td>{l.role}</td><td>{l.uses}</td></tr>
             ))}
           </tbody>
         </table>
       </section>
 
+      <section className="engine-table">
+        <h2>Scenes by domain</h2>
+        <table>
+          <thead><tr><th>Domain</th><th>Scenes</th><th>Demos</th></tr></thead>
+          <tbody>
+            {domains.map((d) => { const list = scenesIn(d.id); return (<tr key={d.id}><td><Link href={`/${d.id}`}>{d.name}</Link></td><td>{list.map((s) => s.title).join(" · ")}</td><td>{list.reduce((n, s) => n + s.demos.length, 0)}</td></tr>); })}
+          </tbody>
+        </table>
+      </section>
+
       <section className="contract">
-        <h2>Adding a scene</h2>
-        <p>
-          A lab is a registry entry plus one engine component. The registry declares typed controls, a legend and the
-          assumptions text; the engine receives parameters, a play flag, a reset counter and an optional binary asset,
-          and reports telemetry. The shell handles transport, export and layout, so a new scene is usually one file.
-        </p>
-        <pre>
-          <code>{`export type EngineProps = {
+        <h2>Adding a demo</h2>
+        <p>Add a DemoDef to a scene in app/scenes/domains/*.ts and an engine component. The engine receives parameters, a play flag, a reset counter, an optional uploaded asset and action commands, and reports telemetry.</p>
+        <pre><code>{`export type EngineProps = {
   params: Record<string, number | boolean | string>;
   playing: boolean;
   resetKey: number;
   asset: ArrayBuffer | null;
+  command: { name: string; seq: number } | null;
   onTelemetry: (t: Record<string, string | number>) => void;
-};`}</code>
-        </pre>
+};`}</code></pre>
       </section>
     </main>
   );

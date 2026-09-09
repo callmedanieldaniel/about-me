@@ -1,60 +1,60 @@
 # OMNIVIS — Visualize everything
 
-An open visualization platform: interactive labs for autonomous driving, embodied AI, simulation and world models, 3D digital twins, AI systems, markets, science and infrastructure. Each scene answers one question, runs in the browser, shows its assumptions and exports its evidence.
+An open visualization platform: **12 domains · 37 scenes · 89 interactive demos**, every one running inside this site in the browser. Nothing redirects to a third-party demo; every demo names the open-source libraries and engines it is built on.
 
-There is no personal profile, employer attribution or contact information in this repository. The platform is judged on its scenes.
+Domains: autonomous driving · triage · map engines · embodied AI · simulation & world models · annotation · data loop · 3D & neural rendering · AI systems · markets · science · industry.
+
+## Routes
+
+```
+/                        home: domains, featured demos, method
+/<domain>                domain index (scenes with their demos)
+/<domain>/<scene>        scene page; ?demo=<id> selects one of ≤ 3 demos
+/stack  /methodology     how it is built, what it does and does not claim
+```
+
+Examples: `/driving/log-replay?demo=mcap`, `/embodied/mujoco?demo=humanoid`, `/geo/cesium?demo=orbits`, `/annotation/lidar-cuboid`.
+
+## Highlights
+
+| Domain | Scenes | Real engines used |
+| --- | --- | --- |
+| Driving | perception, planning & prediction, log replay (MCAP), calibration, HD map (OpenDRIVE) | Three.js, @mcap/core (writes and reads real MCAP), OpenDRIVE reader |
+| Triage | event mining, review workbench, log sim (counterfactual), fleet dashboard | Canvas, Three.js, deck.gl HexagonLayer on MapLibre |
+| Geo | deck.gl, MapLibre, Mapbox, AMap Loca, AntV L7, CesiumJS, Baidu MapVGL | deck.gl 9, maplibre-gl, mapbox-gl (key), AMap JSAPI/Loca (key), @antv/l7, cesium (OSM imagery, no Ion token), MapVGL (key) |
+| Embodied | episode review, MuJoCo in the browser, URDF inspector, kinematics, policy monitor | MuJoCo WASM (official DeepMind bindings), urdf-loader, Three.js |
+| Simulation | scenario editor & sweep, physics, traffic, world model | Rapier WASM, IDM/MOBIL traffic, DC-flow style solvers |
+| Annotation | LiDAR cuboids, tracking, image tools, QC & export | Three.js TransformControls, canvas tools, KITTI / nuScenes export |
+| Data loop, 3D, AI, Markets, Science, Industry | pipeline, dataset stats, training runs · glTF + Gaussian splats · attention, embeddings, agent trace · LOB, IV surface, liquidation map · Lorenz, wave field · power flow, supply chain | Three.js shaders, GLTFLoader, canvas |
 
 ## Run
 
-```sh
-npm ci
-npm run dev      # http://localhost:3000
+```bash
+npm install
+npm run dev      # copies MuJoCo / Cesium runtime assets into public/vendor, then starts Next.js
 npm run build && npm start
+node scripts/verify-platform.mjs   # registry integrity + privacy scan
 ```
 
-## Native labs (`/labs/<id>`)
+Optional map provider keys (demos without them show a configuration note instead of failing):
 
-| Lab | Domain | Engine |
-| --- | --- | --- |
-| `lidar` | Driving | Ray-cast LiDAR sweep, ground segmentation, 3D boxes, BEV occupancy inset |
-| `planner` | Driving | Frenet lattice trajectory sampling with collision/jerk/deviation cost, cut-in scenario |
-| `braking` | Driving | Analytic braking distance, two reaction delays side by side |
-| `arm` | Robotics | Two-link inverse kinematics, reachable annulus, servoed joints |
-| `gait` | Robotics | Kinematic humanoid gait, center of mass, support phase, joint plots |
-| `swarm` | Robotics | 800-agent boids with spatial hash and obstacle field |
-| `physics` | Simulation | Rapier WASM rigid bodies at a fixed 1/60 s step |
-| `model` | 3D | Local GLB inspection: node tree, bounds, animation, wireframe, explode |
-| `attention` | AI | Toy multi-head transformer attention with arcs and matrix |
-| `orderbook` | Markets | Zero-intelligence limit order book with depth, trades and sweeps |
-
-Keyboard: `space` play/pause, `r` restart. Every lab exports a JSON run with parameters, telemetry and assumptions.
-
-## Catalog
-
-`/#catalog` lists 46 scenes across 8 domains. Each entry states the question, inputs, outputs, the real engine that answers it (Foxglove, Rerun, CARLA, Isaac Sim, MuJoCo, Genesis, Cosmos, Spark, Cesium, deck.gl, Mol*, …) and its status: native lab, engine integration, or planned.
-
-- [Research: value map, engine landscape, opportunities](docs/RESEARCH.md)
-- [Roadmap: architecture, data contracts, phases, acceptance gates](docs/ROADMAP.md)
-- `/stack` and `/methodology` in the app describe the build and the rules.
-
-## Validate
-
-```sh
-node scripts/verify.mjs            # legacy geometry fixtures + privacy scan
-node scripts/verify-platform.mjs   # catalog/registry integrity + privacy scan
-npm run build
+```
+NEXT_PUBLIC_MAPBOX_TOKEN=pk.…   # Mapbox Standard style, globe
+NEXT_PUBLIC_AMAP_KEY=…          # AMap JSAPI 2.0 + Loca
+NEXT_PUBLIC_BAIDU_KEY=…         # Baidu Maps GL + MapVGL
 ```
 
-## Adding a scene
+Everything else (deck.gl, MapLibre, L7, Cesium with OpenStreetMap imagery, MuJoCo, Rapier, MCAP) runs without keys.
 
-1. Add a record to `app/catalog/data.ts` (status `lab` with a `lab` id, or `engine` / `planned`).
-2. For a native lab, add a `LabDef` in `app/labs/registry.ts` and an engine in `app/labs/engines/` that implements `EngineProps` from `app/labs/types.ts`.
-3. Run the verification scripts.
+## Architecture
 
-## Geospatial archive
+- `app/scenes/types.ts` — `SceneDef` / `DemoDef` / `EngineProps` and the library catalog used for "Built with" credits.
+- `app/scenes/domains/*.ts` — per-domain registries (controls, legend, assumptions, libs, lazy `load()` of the engine).
+- `app/scenes/engines/<domain>/*.tsx` — one component per demo.
+- `app/scenes/kit/*` — shared helpers: Three.js stage, canvas plots, synthetic city / point clouds / fleet logs, MCAP writer/reader, OpenDRIVE parser, MapLibre + deck.gl overlay, MuJoCo bridge, URDF loader, Cesium loader.
+- `app/scenes/SceneShell.tsx` — demo tabs, transport, controls, telemetry, export, key gating, Built-with panel.
+- `scripts/copy-assets.mjs` — copies `mujoco.js/.wasm` and Cesium's static files to `public/vendor` (gitignored) before dev/build; both are loaded at runtime to keep them out of the bundle.
 
-Earlier map-layer studies remain at `/examples`. Optional map SDK keys `NEXT_PUBLIC_AMAP_KEY` / `NEXT_PUBLIC_BAIDU_KEY` are read at build time; none are committed. Without keys those pages show clearly labeled synthetic studies.
+## Boundaries
 
-## Data and attribution
-
-Synthetic data is labeled synthetic. Rendering is not a claim of physical fidelity, safety validation, clinical accuracy or financial return. Engine links credit third-party technology; they do not claim it as this platform's work. Respect each engine's, dataset's and asset's license. Files opened in the model viewer stay on the device.
+Synthetic data is labelled as such in every demo's assumptions. Third-party engines are credited, not claimed. See `/methodology` and `docs/ROADMAP.md`.

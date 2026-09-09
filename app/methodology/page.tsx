@@ -32,17 +32,17 @@ export default function Methodology() {
       <section className="rules">
         <h2>Rules</h2>
         <ol>
-          <li>Every lab states its assumptions next to its controls, in plain language.</li>
+          <li>Every demo states its assumptions next to its controls, in plain language.</li>
           <li>Synthetic data is labeled synthetic. Recorded data will carry a source and a license.</li>
           <li>Rendering is not a claim of physical fidelity, safety validation, clinical accuracy or financial return.</li>
-          <li>A link to an engine's documentation credits that engine. It does not claim the engine as this platform's work, and integration status is shown on every catalog entry.</li>
+          <li>A link to an engine's documentation credits that engine. It does not claim the engine as this platform's work, and the libraries behind each demo are listed in its Built-with panel.</li>
           <li>Runs are exportable as JSON with parameters, telemetry and assumptions, so a result can be checked or reproduced.</li>
           <li>Files opened in the model viewer stay on the device. Nothing is uploaded or persisted.</li>
           <li>The platform carries no personal profile, employer attribution or contact details. It is judged on the scenes.</li>
         </ol>
       </section>
       <section className="rules">
-        <h2>Known limits of the native labs</h2>
+        <h2>Known limits of the browser demos</h2>
         <ul>
           <li>LiDAR: ray casting against boxes and a flat plane; no beam divergence, reflectivity or multi-return.</li>
           <li>Planner: straight road, constant-velocity prediction, no vehicle dynamics beyond speed blending.</li>
