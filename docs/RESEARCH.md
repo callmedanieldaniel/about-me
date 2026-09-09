@@ -1,6 +1,6 @@
 # Research: what is worth visualizing, and with which engine
 
-Last revised September 2026. Sources are the projects' own documentation and release notes; where a claim depends on a moving target (release versions, benchmarks) the catalog links to the primary page rather than restating numbers.
+Last revised September 2026. References are the projects' own documentation and release notes; where a claim depends on a moving target (release versions, benchmarks) the catalog links to the primary page rather than restating numbers.
 
 ## 1. Where visualization creates real-world value
 

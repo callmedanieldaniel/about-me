@@ -20,11 +20,11 @@ export default function Home() {
             <span className="grad">everything.</span>
           </h1>
           <p className="reveal" style={{ animationDelay: "120ms" }}>
-            {demoCount} interactive demos across driving, triage, map engines, embodied AI, simulation, annotation and the data loop. Every one runs in this site, in your browser, and names the engine it is built on.
+            One platform to see the world as data — roads and robots, maps and markets, sensors, simulations and the models that learn from them. {demoCount} interactive demos in {domains.length} domains, every one running in your browser and naming the engine it is built on.
           </p>
           <div className="hero-actions reveal" style={{ animationDelay: "200ms" }}>
-            <Link href="/driving/perception" className="btn btn-primary">Open LiDAR perception</Link>
-            <Link href="/embodied/mujoco" className="btn">Run MuJoCo in the browser</Link>
+            <Link href="#domains" className="btn btn-primary">Explore the domains</Link>
+            <Link href="/geo/cesium" className="btn">Start from the globe</Link>
           </div>
         </div>
         <ul className="hero-stats" aria-label="Platform at a glance">
@@ -38,7 +38,7 @@ export default function Home() {
 
       <section className="domains" id="domains" aria-labelledby="domains-title">
         <div className="section-head">
-          <h2 id="domains-title">Twelve domains, live</h2>
+          <h2 id="domains-title">The whole world, twelve views</h2>
           <p>Every card is a running preview of its domain. Open one to get scenes that answer one question each, with up to three demos that differ in what they compute.</p>
         </div>
         <div className="domain-grid">
@@ -68,7 +68,7 @@ export default function Home() {
             const d = domains.find((x) => x.id === scene.domain)!;
             return (
               <Link key={`${scene.id}-${demo.id}`} href={`/${scene.domain}/${scene.id}?demo=${demo.id}`} className="feat-card reveal" style={{ ["--hue" as string]: d.hue, animationDelay: `${i * 70}ms` }}>
-                <div className="feat-preview"><Preview kind={d.id} seed={i + 11} /></div>
+                <div className="feat-preview"><Preview kind={scene.id} seed={i + 11} /></div>
                 <span className="feat-domain">{d.short} · /{scene.domain}/{scene.id}</span>
                 <h3>{demo.title}</h3>
                 <p>{demo.summary}</p>

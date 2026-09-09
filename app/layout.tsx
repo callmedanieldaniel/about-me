@@ -11,12 +11,12 @@ export const metadata: Metadata = {
     template: "%s — XVIS",
   },
   description:
-    "An open visualization platform for autonomous driving, embodied AI, simulation, world models, 3D digital twins, AI systems and markets. Interactive labs that run in your browser, backed by real engines.",
+    "XVIS — see the world as data. 89 interactive demos across driving, robotics, maps, simulation, annotation, data loops, 3D, AI, markets, science and industry, all running in the browser on real engines.",
   referrer: "no-referrer",
   openGraph: {
     title: "XVIS — Visualize everything",
     description:
-      "Interactive labs for autonomous driving, robotics, simulation, 3D and AI systems. Runs locally in the browser.",
+      "See the world as data: interactive demos for driving, robotics, maps, simulation, AI and more, running in the browser.",
     type: "website",
   },
 };

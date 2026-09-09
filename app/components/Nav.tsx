@@ -37,9 +37,6 @@ export default function Nav() {
         <Link href="/methodology" aria-current={seg === "methodology" ? "page" : undefined}>
           Method
         </Link>
-        <a href="https://github.com/buildvar/about-me" target="_blank" rel="noopener noreferrer">
-          Source
-        </a>
       </nav>
     </header>
   );

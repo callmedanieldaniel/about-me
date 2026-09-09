@@ -12,9 +12,6 @@ export default function Footer() {
       <nav aria-label="Footer">
         <Link href="/stack">Technology stack</Link>
         <Link href="/methodology">Method and boundaries</Link>
-        <a href="https://github.com/buildvar/about-me" target="_blank" rel="noopener noreferrer">
-          Source
-        </a>
       </nav>
     </footer>
   );

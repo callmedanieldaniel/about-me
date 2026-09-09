@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef } from "react";
 import { mulberry32 } from "../scenes/kit/rng";
+import { scenePreviews } from "./scenePreviews";
 
 // Live procedural previews of each domain, drawn on a small canvas. Cheap enough to run twelve at once.
 type Draw = (ctx: CanvasRenderingContext2D, w: number, h: number, t: number, r: () => number) => void;
@@ -74,7 +75,7 @@ const draws: Record<string, Draw> = {
 export function Preview({ kind, className = "", seed = 1 }: { kind: string; className?: string; seed?: number }) {
   const ref = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
-    const cv = ref.current; if (!cv) return; const draw = draws[kind] ?? draws.spatial;
+    const cv = ref.current; if (!cv) return; const draw = scenePreviews[kind] ?? draws[kind] ?? draws.spatial;
     let raf = 0, alive = true, visible = true; const t0 = performance.now();
     const io = new IntersectionObserver((e) => (visible = e[0].isIntersecting)); io.observe(cv);
     const loop = (now: number) => { if (!alive) return; if (visible) { const dpr = Math.min(window.devicePixelRatio || 1, 2); const w = Math.max(1, cv.clientWidth), h = Math.max(1, cv.clientHeight); if (cv.width !== Math.round(w * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); } const ctx = cv.getContext("2d")!; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, w, h); draw(ctx, w, h, (now - t0) / 1000, mulberry32(seed)); } raf = requestAnimationFrame(loop); };

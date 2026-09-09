@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { domainOf, domains } from "../scenes/domains";
 import { scenesIn } from "../scenes/registry";
 import { Glyph } from "../components/Glyph";
+import { Preview } from "../components/Preview";
 
 export function generateStaticParams() {
   return domains.map((d) => ({ domain: d.id }));
@@ -49,6 +50,7 @@ export default async function DomainPage({ params }: { params: Promise<{ domain:
         {list.map((s, i) => (
           <li key={s.id} className="scene-row reveal" style={{ animationDelay: `${i * 60}ms` }}>
             <Link href={`/${domain}/${s.id}`} className="scene-link">
+              <span className="scene-thumb"><Preview kind={s.id} seed={i + 5} /></span>
               <span className="scene-idx">{String(i + 1).padStart(2, "0")}</span>
               <span className="scene-main">
                 <strong>{s.title}</strong>
