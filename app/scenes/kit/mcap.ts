@@ -10,14 +10,14 @@ const STATES = ["LANE_FOLLOW", "LANE_FOLLOW", "PREPARE_LANE_CHANGE", "LANE_CHANG
 export async function generateLog(seconds = 30, seed = 1): Promise<Uint8Array> {
   const buf = new TempBuffer();
   const w = new McapWriter({ writable: buf, useChunks: true, useStatistics: true, useChunkIndex: true, useMessageIndex: true });
-  await w.start({ library: "omnivis", profile: "" });
+  await w.start({ library: "xvis", profile: "" });
   const sch = async (name: string, props: Record<string, unknown>) => w.registerSchema({ name, encoding: "jsonschema", data: new TextEncoder().encode(JSON.stringify({ type: "object", properties: props })) });
   const ch = async (topic: string, schemaId: number) => w.registerChannel({ topic, messageEncoding: "json", schemaId, metadata: new Map() });
-  const sPose = await sch("omnivis.Pose", { x: { type: "number" }, y: { type: "number" }, yaw: { type: "number" } });
-  const sScalar = await sch("omnivis.Scalar", { value: { type: "number" } });
-  const sState = await sch("omnivis.State", { state: { type: "string" } });
-  const sCloud = await sch("omnivis.PointCloud", { points: { type: "array" } });
-  const sImu = await sch("omnivis.Imu", { ax: { type: "number" }, ay: { type: "number" }, gz: { type: "number" } });
+  const sPose = await sch("xvis.Pose", { x: { type: "number" }, y: { type: "number" }, yaw: { type: "number" } });
+  const sScalar = await sch("xvis.Scalar", { value: { type: "number" } });
+  const sState = await sch("xvis.State", { state: { type: "string" } });
+  const sCloud = await sch("xvis.PointCloud", { points: { type: "array" } });
+  const sImu = await sch("xvis.Imu", { ax: { type: "number" }, ay: { type: "number" }, gz: { type: "number" } });
   const cPose = await ch("/tf/ego", sPose), cSpeed = await ch("/vehicle/speed", sScalar), cSteer = await ch("/vehicle/steer", sScalar), cState = await ch("/planner/state", sState), cCloud = await ch("/lidar/points", sCloud), cImu = await ch("/imu", sImu), cBrake = await ch("/vehicle/brake", sScalar);
   const rng = mulberry32(seed);
   const enc = new TextEncoder();

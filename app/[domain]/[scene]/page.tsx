@@ -11,7 +11,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ domain: string; scene: string }> }) {
   const { scene } = await params;
   const s = sceneOf(scene);
-  return { title: s ? `${s.title} — OMNIVIS` : "OMNIVIS", description: s?.question };
+  return { title: s ? `${s.title} — XVIS` : "XVIS", description: s?.question };
 }
 
 export default async function ScenePage({ params }: { params: Promise<{ domain: string; scene: string }> }) {
@@ -30,7 +30,7 @@ export default async function ScenePage({ params }: { params: Promise<{ domain: 
       <header className="lab-head reveal">
         <div>
         <p className="crumb">
-          <Link href="/">OMNIVIS</Link> / <Link href={`/${d.id}`}>{d.name}</Link>
+          <Link href="/">XVIS</Link> / <Link href={`/${d.id}`}>{d.name}</Link>
         </p>
         <h1>{s.title}</h1>
         <p className="lead">{s.question}</p>

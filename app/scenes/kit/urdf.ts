@@ -4,7 +4,7 @@ import type { URDFRobot, URDFJoint } from "urdf-loader";
 
 // A 6-DoF arm described with URDF primitives (no mesh files needed), parsed by urdf-loader.
 export const ARM_URDF = `<?xml version="1.0"?>
-<robot name="omnivis_arm">
+<robot name="xvis_arm">
   <material name="blue"><color rgba="0.35 0.62 0.85 1"/></material>
   <material name="dark"><color rgba="0.16 0.2 0.27 1"/></material>
   <material name="amber"><color rgba="1 0.7 0.33 1"/></material>

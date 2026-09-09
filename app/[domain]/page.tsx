@@ -11,7 +11,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ domain: string }> }) {
   const { domain } = await params;
   const d = domainOf(domain);
-  return { title: d ? `${d.name} — OMNIVIS` : "OMNIVIS", description: d?.blurb };
+  return { title: d ? `${d.name} — XVIS` : "XVIS", description: d?.blurb };
 }
 
 export default async function DomainPage({ params }: { params: Promise<{ domain: string }> }) {
@@ -24,7 +24,7 @@ export default async function DomainPage({ params }: { params: Promise<{ domain:
     <main className="page domain-page" style={{ ["--hue" as string]: d.hue }}>
       <header className="domain-head reveal">
         <p className="crumb">
-          <Link href="/">OMNIVIS</Link> / {d.name}
+          <Link href="/">XVIS</Link> / {d.name}
         </p>
         <div className="domain-title">
           <Glyph id={d.icon} size={64} />

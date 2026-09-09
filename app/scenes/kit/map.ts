@@ -14,7 +14,7 @@ export function createMap(el: HTMLElement, opts: { center?: [number, number]; zo
   return map;
 }
 
-export const FALLBACK_STYLE = { version: 8, name: "omnivis-fallback", sources: {}, layers: [{ id: "bg", type: "background", paint: { "background-color": "#0a111c" } }] };
+export const FALLBACK_STYLE = { version: 8, name: "xvis-fallback", sources: {}, layers: [{ id: "bg", type: "background", paint: { "background-color": "#0a111c" } }] };
 
 export function deckOverlay(map: maplibregl.Map, layers: Layer[]) {
   const overlay = new MapLibreOverlay({ interleaved: false, layers });

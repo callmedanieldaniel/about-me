@@ -6,7 +6,7 @@ export type Road = { id: string; length: number; ref: [number, number, number][]
 export type Network = { roads: Road[]; lanes: Lane[]; bbox: [number, number, number, number] };
 
 export const SAMPLE_XODR = `<?xml version="1.0"?>
-<OpenDRIVE><header revMajor="1" revMinor="8" name="omnivis-loop"/>
+<OpenDRIVE><header revMajor="1" revMinor="8" name="xvis-loop"/>
 <road name="R1" length="120" id="1" junction="-1"><link><predecessor elementType="road" elementId="4" contactPoint="end"/><successor elementType="road" elementId="2" contactPoint="start"/></link>
  <planView><geometry s="0" x="0" y="0" hdg="0" length="120"><line/></geometry></planView>
  <lanes><laneSection s="0"><left><lane id="2" type="sidewalk"><width a="2"/></lane><lane id="1" type="driving"><width a="3.5"/></lane></left><center><lane id="0" type="none"/></center><right><lane id="-1" type="driving"><width a="3.5"/></lane><lane id="-2" type="driving"><width a="3.5"/></lane><lane id="-3" type="shoulder"><width a="1.5"/></lane></right></laneSection></lanes></road>

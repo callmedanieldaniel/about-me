@@ -3,7 +3,7 @@ import { domains } from "../scenes/domains";
 import { scenes, scenesIn } from "../scenes/registry";
 import type { Lib } from "../scenes/types";
 
-export const metadata = { title: "Stack", description: "How OMNIVIS is built: scene registry, engines, libraries, verification." };
+export const metadata = { title: "Stack", description: "How XVIS is built: scene registry, engines, libraries, verification." };
 
 export default function Stack() {
   const libs = new Map<string, Lib & { uses: number }>();

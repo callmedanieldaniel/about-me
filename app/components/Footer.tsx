@@ -4,7 +4,7 @@ export default function Footer() {
   return (
     <footer className="footer">
       <div>
-        <span className="brand-small">OMNIVIS</span>
+        <span className="brand-small">XVIS</span>
         <p>
           Every scene answers one question. Inputs, assumptions and outputs stay visible. Synthetic data is labeled as such; third-party engines are credited, not claimed.
         </p>

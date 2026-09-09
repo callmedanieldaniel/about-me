@@ -7,14 +7,14 @@ import Footer from "./components/Footer";
 
 export const metadata: Metadata = {
   title: {
-    default: "OMNIVIS — Visualize everything",
-    template: "%s — OMNIVIS",
+    default: "XVIS — Visualize everything",
+    template: "%s — XVIS",
   },
   description:
     "An open visualization platform for autonomous driving, embodied AI, simulation, world models, 3D digital twins, AI systems and markets. Interactive labs that run in your browser, backed by real engines.",
   referrer: "no-referrer",
   openGraph: {
-    title: "OMNIVIS — Visualize everything",
+    title: "XVIS — Visualize everything",
     description:
       "Interactive labs for autonomous driving, robotics, simulation, 3D and AI systems. Runs locally in the browser.",
     type: "website",

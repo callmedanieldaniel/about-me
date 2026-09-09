@@ -18,7 +18,7 @@ export default function Nav() {
           <circle cx="11" cy="11" r="2" fill="currentColor" />
           <path d="M11 1.5 A9.5 9.5 0 0 1 20.5 11" fill="none" stroke="#5ee7ff" strokeWidth="2.5" />
         </svg>
-        OMNIVIS
+        XVIS
       </Link>
       <button type="button" className="nav-burger" onClick={() => setOpen((o) => !o)} aria-label="Menu" aria-expanded={open}>
         <i />

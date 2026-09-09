@@ -1,4 +1,4 @@
-# OMNIVIS — Visualize everything
+# XVIS — Visualize everything
 
 An open visualization platform: **12 domains · 37 scenes · 89 interactive demos**, every one running inside this site in the browser. Nothing redirects to a third-party demo; every demo names the open-source libraries and engines it is built on.
 

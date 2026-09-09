@@ -1,5 +1,5 @@
 // Simplified humanoid MJCF (capsule body, hinge joints, position actuators) written for this platform.
-export const HUMANOID_XML = `<mujoco model="omnivis-humanoid">
+export const HUMANOID_XML = `<mujoco model="xvis-humanoid">
   <option timestep="0.005" gravity="0 0 -9.81"/>
   <default>
     <joint limited="true" damping="1" armature="0.02"/>
@@ -54,7 +54,7 @@ export const HUMANOID_XML = `<mujoco model="omnivis-humanoid">
   </actuator>
 </mujoco>`;
 
-export const ARM_XML = `<mujoco model="omnivis-arm">
+export const ARM_XML = `<mujoco model="xvis-arm">
   <option timestep="0.002" gravity="0 0 -9.81"/>
   <default><joint limited="true" damping="2" armature="0.05"/><geom condim="4" friction="1.2 0.05 0.01"/></default>
   <worldbody>
@@ -84,7 +84,7 @@ export const ARM_XML = `<mujoco model="omnivis-arm">
   </actuator>
 </mujoco>`;
 
-export const DROP_XML = (friction: number, mass: number, restitution: number) => `<mujoco model="omnivis-random">
+export const DROP_XML = (friction: number, mass: number, restitution: number) => `<mujoco model="xvis-random">
   <option timestep="0.002" gravity="0 0 -9.81"/>
   <default><geom condim="3" friction="${friction} 0.05 0.01" solref="0.01 ${1 + (1 - restitution) * 2}"/></default>
   <worldbody>
