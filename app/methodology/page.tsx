@@ -1,5 +1,3 @@
-import Footer from "../components/Footer";
-import Nav from "../components/Nav";
 
 export const metadata = { title: "Method and boundaries" };
 
@@ -13,7 +11,6 @@ const kinds = [
 export default function Methodology() {
   return (
     <main className="shell doc-page">
-      <Nav current="/methodology" />
       <header className="doc-head">
         <h1>Method and boundaries</h1>
         <p>
@@ -58,7 +55,6 @@ export default function Methodology() {
           <li>Order book: zero-intelligence agents; impact and recovery are qualitative.</li>
         </ul>
       </section>
-      <Footer />
     </main>
   );
 }

@@ -9,12 +9,22 @@
     "start": "next start"
   },
   "dependencies": {
+    "@antv/l7": "^2.29.1",
+    "@antv/l7-maps": "^2.29.1",
     "@dimforge/rapier3d-compat": "0.19.3",
+    "@mcap/core": "^2.2.2",
     "@types/three": "^0.184.1",
+    "cesium": "^1.145.0",
+    "deck.gl": "^9.4.0",
+    "mapbox-gl": "^1.13.3",
+    "maplibre-gl": "^6.8.0",
+    "mujoco": "^3.1.16",
     "next": "16.2.6",
     "react": "19.2.6",
     "react-dom": "19.2.6",
-    "three": "^0.184.0"
+    "three": "^0.184.0",
+    "uplot": "^1.6.32",
+    "urdf-loader": "^0.13.1"
   },
   "devDependencies": {
     "@types/node": "22.15.3",

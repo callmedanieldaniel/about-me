@@ -1,5 +1,3 @@
-import Footer from "../components/Footer";
-import Nav from "../components/Nav";
 
 export const metadata = { title: "Technology stack" };
 
@@ -40,7 +38,6 @@ const engines: [string, string, string][] = [
 export default function Stack() {
   return (
     <main className="shell doc-page">
-      <Nav current="/stack" />
       <header className="doc-head">
         <h1>How the platform is built</h1>
         <p>
@@ -149,7 +146,6 @@ export default function Stack() {
 };`}</code>
         </pre>
       </section>
-      <Footer />
     </main>
   );
 }

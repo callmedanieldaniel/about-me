@@ -1,69 +1,71 @@
 import Link from "next/link";
-import Catalog from "./components/Catalog";
-import Footer from "./components/Footer";
 import Hero from "./components/Hero";
-import Nav from "./components/Nav";
-import { domainOf, domains, labs, scenes } from "./catalog/data";
+import { Glyph } from "./components/Glyph";
+import { domains } from "./scenes/domains";
+import { scenes, scenesIn, featured, libCount } from "./scenes/registry";
 
 export default function Home() {
-  const engines = scenes.filter((s) => s.status === "engine").length;
+  const demoCount = scenes.reduce((n, s) => n + s.demos.length, 0);
   return (
     <main className="shell">
-      <Nav />
       <section className="hero">
         <Hero />
         <div className="hero-copy">
-          <h1>
+          <p className="eyebrow reveal">Open visualization platform</p>
+          <h1 className="reveal">
             Visualize
             <br />
-            everything.
+            <span className="grad">everything.</span>
           </h1>
-          <p>
-            Interactive labs for autonomous driving, embodied AI, simulation, world models, 3D twins, AI systems and
-            markets. Each one runs in your browser, shows its assumptions, and lets you change the variable that
-            matters.
+          <p className="reveal" style={{ animationDelay: "120ms" }}>
+            {demoCount} interactive demos across driving, triage, map engines, embodied AI, simulation, annotation and the data loop. Every one runs in this site, in your browser, and names the engine it is built on.
           </p>
-          <div className="hero-actions">
-            <Link href="/labs/lidar" className="btn btn-primary">
-              Open the LiDAR lab
+          <div className="hero-actions reveal" style={{ animationDelay: "200ms" }}>
+            <Link href="/driving/perception" className="btn btn-primary">
+              Open LiDAR perception
             </Link>
-            <a href="#catalog" className="btn">
-              Browse {scenes.length} scenes
-            </a>
+            <Link href="/annotation/lidar-cuboid" className="btn">
+              Try the annotation tool
+            </Link>
           </div>
         </div>
         <ul className="hero-stats" aria-label="Platform at a glance">
           <li>
-            <b>{labs.length}</b>
-            <span>native labs, no sign-in</span>
+            <b data-count={demoCount}>{demoCount}</b>
+            <span>demos, zero redirects</span>
           </li>
           <li>
-            <b>{engines}</b>
-            <span>real engines integrated or specified</span>
+            <b data-count={scenes.length}>{scenes.length}</b>
+            <span>scenes, ≤ 3 demos each</span>
           </li>
           <li>
-            <b>{domains.length}</b>
-            <span>domains, one method</span>
+            <b data-count={libCount}>{libCount}</b>
+            <span>open-source libraries and engines credited</span>
           </li>
         </ul>
       </section>
 
-      <section className="labs" id="labs" aria-labelledby="labs-title">
+      <section className="domains" id="domains" aria-labelledby="domains-title">
         <div className="section-head">
-          <h2 id="labs-title">Start with a lab</h2>
-          <p>Live computation and rendering in the page. Drag, change a parameter, export the run.</p>
+          <h2 id="domains-title">Twelve domains, one method</h2>
+          <p>Pick a domain. Each scene answers one question with up to three demos that differ in what they compute, not just how they look.</p>
         </div>
-        <div className="lab-grid">
-          {labs.map((s) => {
-            const d = domainOf(s.domain);
+        <div className="domain-grid">
+          {domains.map((d, i) => {
+            const list = scenesIn(d.id);
+            const n = list.reduce((k, s) => k + s.demos.length, 0);
             return (
-              <Link href={`/labs/${s.lab}`} className="lab-card" key={s.id} style={{ "--hue": d.hue } as React.CSSProperties}>
-                <LabGlyph id={s.lab!} />
-                <div className="lab-card-body">
-                  <small>{d.short}</small>
-                  <h3>{s.title}</h3>
-                  <p>{s.problem}</p>
-                  <span>{s.engine}</span>
+              <Link href={`/${d.id}`} className="domain-card reveal" key={d.id} style={{ ["--hue" as string]: d.hue, animationDelay: `${i * 50}ms` }}>
+                <Glyph id={d.icon} />
+                <div className="dc-body">
+                  <h3>{d.name}</h3>
+                  <p>{d.blurb}</p>
+                </div>
+                <div className="dc-foot">
+                  <span>
+                    {list.length} scenes · {n} demos
+                  </span>
+                  <span className="arrow">→</span>
                 </div>
               </Link>
             );
@@ -71,144 +73,49 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="method-strip" aria-label="How every scene is built">
-        <div>
-          <h2>One pipeline, every domain</h2>
-          <p>
-            A scene is not a picture. It is a question, a data contract, an engine that computes the answer, a view
-            that makes the answer legible, and evidence you can export and reproduce.
-          </p>
+      <section className="featured" aria-labelledby="featured-title">
+        <div className="section-head">
+          <h2 id="featured-title">Start here</h2>
+          <p>The demos that show the most in the first thirty seconds.</p>
+        </div>
+        <div className="feat-grid">
+          {featured.map(({ scene, demo }, i) => {
+            const d = domains.find((x) => x.id === scene.domain)!;
+            return (
+              <Link key={`${scene.id}-${demo.id}`} href={`/${scene.domain}/${scene.id}?demo=${demo.id}`} className="feat-card reveal" style={{ ["--hue" as string]: d.hue, animationDelay: `${i * 70}ms` }}>
+                <span className="feat-domain">{d.short}</span>
+                <h3>{demo.title}</h3>
+                <p>{demo.summary}</p>
+                <span className="feat-libs">{demo.libs.slice(0, 3).map((l) => l.name).join(" · ")}</span>
+              </Link>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="method-strip" aria-labelledby="method-title">
+        <div className="method-intro">
+          <h2 id="method-title">One pipeline, every domain</h2>
+          <p>A scene is not a picture. It is a question, a data contract, an engine that computes the answer, a view that makes the answer legible, and evidence you can export and reproduce.</p>
+          <Link href="/methodology" className="btn">
+            Read the method
+          </Link>
         </div>
         <ol className="pipeline">
-          <li>
-            <b>Question</b>
-            <span>“How much farther does a late brake travel?”</span>
-          </li>
-          <li>
-            <b>Data contract</b>
-            <span>Typed inputs, units, synthetic vs recorded</span>
-          </li>
-          <li>
-            <b>Engine</b>
-            <span>Analytic, rigid-body, planner, LOB, transformer…</span>
-          </li>
-          <li>
-            <b>View</b>
-            <span>3D stage, BEV inset, plots, arcs, depth</span>
-          </li>
-          <li>
-            <b>Evidence</b>
-            <span>Telemetry strip, JSON export, stated assumptions</span>
-          </li>
-        </ol>
-      </section>
-
-      <Catalog />
-
-      <section className="domain-grid" aria-labelledby="domains-title">
-        <h2 id="domains-title">Domains and the question each one asks</h2>
-        <ul>
-          {domains.map((d) => (
-            <li key={d.id} style={{ "--hue": d.hue } as React.CSSProperties}>
-              <i />
-              <b>{d.name}</b>
-              <span>{d.question}</span>
+          {[
+            ["Question", "“Which candidate trajectory did the planner pick, and why?”"],
+            ["Data contract", "Typed inputs, units, synthetic vs recorded"],
+            ["Engine", "Planner, MuJoCo, deck.gl, LOB, transformer…"],
+            ["View", "3D stage, BEV inset, plots, maps, timelines"],
+            ["Evidence", "Telemetry strip, JSON export, stated assumptions"],
+          ].map(([t, s], i) => (
+            <li key={t}>
+              <b>{t}</b>
+              <span>{s}</span>
             </li>
           ))}
-        </ul>
+        </ol>
       </section>
-      <Footer />
     </main>
-  );
-}
-
-function LabGlyph({ id }: { id: string }) {
-  const common = { fill: "none", stroke: "currentColor", strokeWidth: 1.4, strokeLinecap: "round" as const };
-  const g: Record<string, React.ReactNode> = {
-    lidar: (
-      <>
-        <circle cx="32" cy="32" r="24" {...common} strokeDasharray="3 5" />
-        <circle cx="32" cy="32" r="14" {...common} strokeDasharray="2 4" />
-        <path d="M32 32 L52 20" {...common} stroke="#5ee7ff" strokeWidth="2" />
-        <rect x="28" y="29" width="8" height="6" fill="#ffb454" />
-      </>
-    ),
-    planner: (
-      <>
-        <path d="M8 44 Q 32 44 56 20" {...common} stroke="#7cf3a0" strokeWidth="2" />
-        <path d="M8 44 Q 32 40 56 32" {...common} />
-        <path d="M8 44 Q 32 48 56 44" {...common} />
-        <path d="M8 44 Q 34 30 56 10" {...common} stroke="#ff5d73" />
-      </>
-    ),
-    braking: (
-      <>
-        <path d="M6 40 H58" {...common} />
-        <rect x="8" y="30" width="16" height="8" fill="#5ee7ff" />
-        <rect x="8" y="46" width="16" height="8" fill="#ffb454" />
-        <path d="M50 26 V58" {...common} stroke="#ff5d73" strokeWidth="3" />
-      </>
-    ),
-    arm: (
-      <>
-        <circle cx="16" cy="48" r="4" {...common} />
-        <path d="M16 48 L34 26 L52 32" {...common} strokeWidth="3" />
-        <circle cx="52" cy="32" r="5" {...common} stroke="#ffb454" />
-        <circle cx="16" cy="48" r="26" {...common} strokeDasharray="2 4" opacity="0.5" />
-      </>
-    ),
-    gait: (
-      <>
-        <circle cx="32" cy="12" r="4" {...common} />
-        <path d="M32 16 V32 L22 52 M32 32 L42 48 M32 20 L22 32 M32 20 L44 28" {...common} strokeWidth="2" />
-        <circle cx="32" cy="30" r="2.5" fill="#7cf3a0" />
-      </>
-    ),
-    swarm: (
-      <>
-        {[
-          [14, 20], [24, 14], [36, 18], [46, 12], [18, 34], [30, 30], [42, 28], [52, 24], [22, 46], [34, 44], [46, 40],
-        ].map(([x, y], i) => (
-          <path key={i} d={`M${x} ${y} l6 -2 l-4 4 z`} fill="#5ee7ff" />
-        ))}
-        <circle cx="38" cy="50" r="6" fill="#ff5d73" opacity="0.7" />
-      </>
-    ),
-    physics: (
-      <>
-        <path d="M6 52 H58" {...common} />
-        <circle cx="20" cy="42" r="8" fill="#5ee7ff" />
-        <rect x="36" y="16" width="14" height="14" fill="#b99cff" transform="rotate(18 43 23)" />
-        <path d="M20 8 V32" {...common} strokeDasharray="2 3" />
-      </>
-    ),
-    model: (
-      <>
-        <path d="M32 8 L54 20 V44 L32 56 L10 44 V20 Z" {...common} />
-        <path d="M32 8 V32 L54 20 M32 32 L10 20 M32 32 V56" {...common} />
-      </>
-    ),
-    attention: (
-      <>
-        {[10, 21, 32, 43, 54].map((x) => (
-          <circle key={x} cx={x} cy="44" r="3" fill="#e6eef8" />
-        ))}
-        <path d="M32 44 Q 21 20 10 44" {...common} stroke="#5ee7ff" strokeWidth="3" />
-        <path d="M32 44 Q 26 30 21 44" {...common} stroke="#5ee7ff" />
-        <path d="M32 44 Q 43 10 54 44" {...common} stroke="#5ee7ff" opacity="0.5" />
-      </>
-    ),
-    orderbook: (
-      <>
-        <path d="M8 50 H30 V40 H24 V32 H16 V22 H8 Z" fill="#7cf3a0" opacity="0.8" />
-        <path d="M56 50 H34 V42 H40 V30 H48 V18 H56 Z" fill="#ff5d73" opacity="0.8" />
-        <path d="M32 10 V52" {...common} strokeDasharray="3 3" stroke="#5ee7ff" />
-      </>
-    ),
-  };
-  return (
-    <svg className="lab-glyph" viewBox="0 0 64 64" aria-hidden="true">
-      {g[id]}
-    </svg>
   );
 }
